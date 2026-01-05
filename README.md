@@ -21,52 +21,52 @@ Linguae is a production-ready language exchange application that bridges learner
 ## ✨ Key Features
 
 ### Real-Time Communication
-- 🌐 **Live Messaging** – Type indicators, read receipts, and instant message delivery
-- 💬 **Message Reactions** – Emoji reactions for engaging conversations
-- 🖼️ **Media Sharing** – Upload and share images in conversations
+- 🌐 **Live Messaging** - Type indicators, read receipts, and instant message delivery
+- 💬 **Message Reactions** - Emoji reactions for engaging conversations
+- 🖼️ **Media Sharing** - Upload and share images in conversations
 
 ### Video & Voice
-- 📹 **One-on-One Video Calls** – Crystal-clear peer-to-peer communication
-- 👥 **Group Video Calls** – Connect with multiple learners simultaneously
-- 🎬 **Screen Sharing** – Share your screen for collaborative learning
-- 🎥 **Call Recording** – Record sessions for future reference
+- 📹 **One-on-One Video Calls** - Crystal-clear peer-to-peer communication
+- 👥 **Group Video Calls** - Connect with multiple learners simultaneously
+- 🎬 **Screen Sharing** - Share your screen for collaborative learning
+- 🎥 **Call Recording** - Record sessions for future reference
 
 ### Community & Discovery
-- 👤 **User Profiles** – Showcase native language, learning goals, and bio
-- 🔍 **Smart Matching** – Find language partners based on language preferences
-- 🌐 **Online Status** – See who's available in real-time
-- 🤝 **Friend Requests & Notifications** – Build your learning network
+- 👤 **User Profiles** - Showcase native language, learning goals, and bio
+- 🔍 **Smart Matching** - Find language partners based on language preferences
+- 🌐 **Online Status** - See who's available in real-time
+- 🤝 **Friend Requests & Notifications** - Build your learning network
 
 ### Personalization
-- 🎨 **32 Unique UI Themes** – Customize your experience with diverse visual themes
-- 💾 **Persistent Theme Preference** – Your theme choice is saved locally
+- 🎨 **32 Unique UI Themes** - Customize your experience with diverse visual themes
+- 💾 **Persistent Theme Preference** - Your theme choice is saved locally
 
 ### Security & Reliability
-- 🔐 **JWT Authentication** – Secure token-based authentication
-- 🛡️ **Protected Routes** – Role-based access control
-- 🚨 **Comprehensive Error Handling** – Graceful error recovery on both frontend and backend
-- ⚡ **Production-Ready Architecture** – Designed for scale and reliability
+- 🔐 **JWT Authentication** - Secure token-based authentication
+- 🛡️ **Protected Routes** - Role-based access control
+- 🚨 **Comprehensive Error Handling** - Graceful error recovery on both frontend and backend
+- ⚡ **Production-Ready Architecture** - Designed for scale and reliability
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React** – UI framework
-- **Vite** – Lightning-fast build tool
-- **Tailwind CSS** – Utility-first styling
-- **Zustand** – Lightweight global state management
-- **TanStack Query** – Powerful data fetching and caching
-- **Lucide React** – Icon library
-- **Stream Chat** – Real-time messaging SDK
+- **React** - UI framework
+- **Vite** - Lightning-fast build tool
+- **Tailwind CSS** - Utility-first styling
+- **Zustand** - Lightweight global state management
+- **TanStack Query** - Powerful data fetching and caching
+- **Lucide React** - Icon library
+- **Stream Chat** - Real-time messaging SDK
 
 ### Backend
-- **Node.js** – Runtime environment
-- **Express.js** – Web framework
-- **MongoDB** – NoSQL database
-- **Stream** – Real-time messaging and video infrastructure
-- **JWT** – Authentication
-- **Mongoose** – MongoDB ODM
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **MongoDB** - NoSQL database
+- **Stream** - Real-time messaging and video infrastructure
+- **JWT** - Authentication
+- **Mongoose** - MongoDB ODM
 
 ---
 
@@ -175,7 +175,7 @@ linguae/
 4. Automatic logout on token expiration
 
 ### Real-Time Messaging
-- **Stream Chat Integration** – Leverages Stream's infrastructure for:
+- **Stream Chat Integration** - Leverages Stream's infrastructure for:
   - Instant message delivery with typing indicators
   - Message history and persistence
   - Unread message tracking
@@ -198,23 +198,23 @@ linguae/
 
 ## 🎨 UI/UX Highlights
 
-- **Responsive Design** – Optimized for mobile, tablet, and desktop
-- **32 Theme Options** – Complete visual customization with persistent storage
-- **Accessibility** – Semantic HTML and ARIA labels
+- **Responsive Design** - Optimized for mobile, tablet, and desktop
+- **32 Theme Options** - Complete visual customization with persistent storage
+- **Accessibility** - Semantic HTML and ARIA labels
 - **Loading States** – Skeleton screens and spinners for smooth UX
-- **Error Feedback** – User-friendly error messages and alerts
-- **Mobile Navigation** – Hamburger menu with smooth scrolling
+- **Error Feedback** - User-friendly error messages and alerts
+- **Mobile Navigation** - Hamburger menu with smooth scrolling
 
 ---
 
 ## 🔐 Security Considerations
 
-- **JWT Tokens** – Secure, stateless authentication
-- **Password Hashing** – Bcrypt for password security (backend)
-- **Protected Endpoints** – Middleware validates authentication
-- **CORS Configuration** – Restricts cross-origin requests
-- **Environment Variables** – Sensitive data never hardcoded
-- **Stream Security** – Tokens validated server-side before use
+- **JWT Tokens** - Secure, stateless authentication
+- **Password Hashing** - Bcrypt for password security (backend)
+- **Protected Endpoints** - Middleware validates authentication
+- **CORS Configuration** - Restricts cross-origin requests
+- **Environment Variables** - Sensitive data never hardcoded
+- **Stream Security** - Tokens validated server-side before use
 
 ---
 
@@ -236,4 +236,4 @@ This project is open-source and available under the MIT License.
 
 ---
 
-**Linguae** – Connecting language learners worldwide. 🌍✨
+**Linguae** - Connecting language learners worldwide. 🌍✨

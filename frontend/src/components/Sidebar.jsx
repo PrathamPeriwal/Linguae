@@ -1,7 +1,12 @@
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BellIcon, HomeIcon, MessageCircleIcon, ShipWheelIcon } from "lucide-react";
+import {
+  BellIcon,
+  HomeIcon,
+  MessageCircleIcon,
+  ShipWheelIcon,
+} from "lucide-react";
 import { StreamChat } from "stream-chat";
 import useAuthUser from "../hooks/useAuthUser";
 import { getStreamToken, getUserFriends } from "../lib/api";
@@ -32,7 +37,9 @@ const Sidebar = () => {
       if (!tokenData?.token || !authUser || !friends.length) return;
 
       try {
-        const client = StreamChat.getInstance(import.meta.env.VITE_STREAM_API_KEY);
+        const client = StreamChat.getInstance(
+          import.meta.env.VITE_STREAM_API_KEY
+        );
 
         if (!client.userID) {
           await client.connectUser(
@@ -77,7 +84,10 @@ const Sidebar = () => {
     const handler = (event) => {
       if (event.user.id !== authUser._id) {
         const senderId = event.user.id;
-        setUnreadCounts((prev) => ({ ...prev, [senderId]: (prev[senderId] || 0) + 1 }));
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [senderId]: (prev[senderId] || 0) + 1,
+        }));
       }
     };
 
@@ -95,7 +105,9 @@ const Sidebar = () => {
               Linguae
             </span>
           </div>
-          <p className="text-[10px] text-base-content/50 mt-1 ml-11 leading-tight">Learn languages through real conversations.</p>
+          <p className="text-[10px] text-base-content/50 mt-1 ml-11 leading-tight">
+            Learn languages through real conversations.
+          </p>
         </Link>
       </div>
 
@@ -145,7 +157,9 @@ const Sidebar = () => {
                       </div>
                     </div>
                     <div className="flex-1 truncate text-left">
-                      <p className="text-sm font-medium truncate">{friend.fullName}</p>
+                      <p className="text-sm font-medium truncate">
+                        {friend.fullName}
+                      </p>
                       <p className="text-[11px] text-base-content/60 truncate">
                         {isActive ? "In chat" : "Tap to chat"}
                       </p>

@@ -8,7 +8,12 @@ import {
   getStreamToken,
 } from "../lib/api";
 import { Link } from "react-router";
-import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  MapPinIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import { capitialize } from "../lib/utils";
 import { LANGUAGES } from "../constants";
@@ -52,7 +57,8 @@ const HomePage = () => {
 
   const { mutate: sendRequestMutation, isPending } = useMutation({
     mutationFn: sendFriendRequest,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
   });
 
   useEffect(() => {
@@ -142,9 +148,13 @@ const HomePage = () => {
 
   const filteredRecommendedUsers = recommendedUsers.filter((user) => {
     const term = searchTerm.trim().toLowerCase();
-    const nameMatch = term ? user.fullName?.toLowerCase().includes(term) : false;
-    const langMatch = !languageFilter
-      || (user.nativeLanguage && user.nativeLanguage.toLowerCase() === languageFilter);
+    const nameMatch = term
+      ? user.fullName?.toLowerCase().includes(term)
+      : false;
+    const langMatch =
+      !languageFilter ||
+      (user.nativeLanguage &&
+        user.nativeLanguage.toLowerCase() === languageFilter);
     return nameMatch || langMatch;
   });
 
@@ -154,7 +164,9 @@ const HomePage = () => {
         {/* Mobile/tablet: show friends + meet new learners together */}
         <div className="lg:hidden space-y-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Your Friends</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Your Friends
+            </h2>
             <Link to="/notifications" className="btn btn-outline btn-sm">
               <UsersIcon className="mr-2 size-4" />
               Friend Requests
@@ -183,14 +195,29 @@ const HomePage = () => {
             <div className="mb-6 sm:mb-8">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6">
                 <div className="space-y-1">
-                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Meet New Learners</h2>
-                  <p className="text-sm text-base-content/70">Filter by native language or search by name</p>
+                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                    Meet New Learners
+                  </h2>
+                  <p className="text-sm text-base-content/70">
+                    Filter by native language or search by name
+                  </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                   <label className="input input-bordered flex items-center gap-2 w-full sm:w-64">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 opacity-60">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.64 5.64a7.5 7.5 0 0011.01 11.01z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-4 h-4 opacity-60"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.64 5.64a7.5 7.5 0 0011.01 11.01z"
+                      />
                     </svg>
                     <input
                       type="text"
@@ -223,8 +250,12 @@ const HomePage = () => {
               </div>
             ) : filteredRecommendedUsers.length === 0 ? (
               <div className="card bg-base-200 p-6 text-center">
-                <h3 className="font-semibold text-lg mb-2">No learners match your filters</h3>
-                <p className="text-base-content opacity-70">Try clearing the search or picking another language.</p>
+                <h3 className="font-semibold text-lg mb-2">
+                  No learners match your filters
+                </h3>
+                <p className="text-base-content opacity-70">
+                  Try clearing the search or picking another language.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -243,7 +274,9 @@ const HomePage = () => {
                           </div>
 
                           <div>
-                            <h3 className="font-semibold text-lg">{user.fullName}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {user.fullName}
+                            </h3>
                             {user.location && (
                               <div className="flex items-center text-xs opacity-70 mt-1">
                                 <MapPinIcon className="size-3 mr-1" />
@@ -265,7 +298,9 @@ const HomePage = () => {
                           </span>
                         </div>
 
-                        {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
+                        {user.bio && (
+                          <p className="text-sm opacity-70">{user.bio}</p>
+                        )}
 
                         {/* Action button */}
                         <button
@@ -301,14 +336,29 @@ const HomePage = () => {
           <section>
             <div className="mb-6 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 xl:gap-6">
               <div>
-                <h2 className="text-3xl font-bold tracking-tight mb-1">Meet New Learners</h2>
-                <p className="text-sm text-base-content/70">Filter by native language or search by name</p>
+                <h2 className="text-3xl font-bold tracking-tight mb-1">
+                  Meet New Learners
+                </h2>
+                <p className="text-sm text-base-content/70">
+                  Filter by native language or search by name
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
                 <label className="input input-bordered flex items-center gap-2 w-full sm:w-72">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 opacity-60">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.64 5.64a7.5 7.5 0 0011.01 11.01z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-4 h-4 opacity-60"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.64 5.64a7.5 7.5 0 0011.01 11.01z"
+                    />
                   </svg>
                   <input
                     type="text"
@@ -340,8 +390,12 @@ const HomePage = () => {
               </div>
             ) : filteredRecommendedUsers.length === 0 ? (
               <div className="card bg-base-200 p-6 text-center">
-                <h3 className="font-semibold text-lg mb-2">No learners match your filters</h3>
-                <p className="text-base-content opacity-70">Try clearing the search or picking another language.</p>
+                <h3 className="font-semibold text-lg mb-2">
+                  No learners match your filters
+                </h3>
+                <p className="text-base-content opacity-70">
+                  Try clearing the search or picking another language.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -360,7 +414,9 @@ const HomePage = () => {
                           </div>
 
                           <div>
-                            <h3 className="font-semibold text-lg">{user.fullName}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {user.fullName}
+                            </h3>
                             {user.location && (
                               <div className="flex items-center text-xs opacity-70 mt-1">
                                 <MapPinIcon className="size-3 mr-1" />
@@ -381,7 +437,9 @@ const HomePage = () => {
                           </span>
                         </div>
 
-                        {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
+                        {user.bio && (
+                          <p className="text-sm opacity-70">{user.bio}</p>
+                        )}
 
                         <button
                           className={`btn w-full mt-2 ${

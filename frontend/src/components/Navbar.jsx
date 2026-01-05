@@ -1,6 +1,13 @@
 import { Link, useLocation } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { BellIcon, LogOutIcon, ShipWheelIcon, MenuIcon, HomeIcon, XIcon } from "lucide-react";
+import {
+  BellIcon,
+  LogOutIcon,
+  ShipWheelIcon,
+  MenuIcon,
+  HomeIcon,
+  XIcon,
+} from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import useLogout from "../hooks/useLogout";
 import { useState } from "react";
@@ -42,10 +49,18 @@ const Navbar = () => {
             {/* RIGHT SIDE - ACTIONS */}
             <div className="flex items-center gap-2 sm:gap-3">
               {/* HOME BUTTONS - Mobile and Desktop */}
-              <Link to="/" className="btn btn-ghost btn-circle lg:hidden" aria-label="Go home">
+              <Link
+                to="/"
+                className="btn btn-ghost btn-circle lg:hidden"
+                aria-label="Go home"
+              >
                 <HomeIcon className="h-5 w-5 text-base-content opacity-70" />
               </Link>
-              <Link to="/" className="btn btn-ghost btn-circle hidden lg:inline-flex" aria-label="Go home">
+              <Link
+                to="/"
+                className="btn btn-ghost btn-circle hidden lg:inline-flex"
+                aria-label="Go home"
+              >
                 <HomeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-base-content opacity-70" />
               </Link>
 
@@ -59,12 +74,19 @@ const Navbar = () => {
 
               <div className="avatar">
                 <div className="w-8 sm:w-9 rounded-full">
-                  <img src={authUser?.profilePic} alt="User Avatar" rel="noreferrer" />
+                  <img
+                    src={authUser?.profilePic}
+                    alt="User Avatar"
+                    rel="noreferrer"
+                  />
                 </div>
               </div>
 
               {/* Logout button */}
-              <button className="btn btn-ghost btn-circle" onClick={logoutMutation}>
+              <button
+                className="btn btn-ghost btn-circle"
+                onClick={logoutMutation}
+              >
                 <LogOutIcon className="h-5 w-5 sm:h-6 sm:w-6 text-base-content opacity-70" />
               </button>
             </div>
@@ -86,7 +108,11 @@ const Navbar = () => {
             <div className="flex flex-col h-full">
               {/* DRAWER HEADER */}
               <div className="p-5 border-b border-base-300 flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-2.5" onClick={closeMobileMenu}>
+                <Link
+                  to="/"
+                  className="flex items-center gap-2.5"
+                  onClick={closeMobileMenu}
+                >
                   <ShipWheelIcon className="size-9 text-primary" />
                   <span className="text-2xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-wider">
                     Linguae
@@ -130,7 +156,9 @@ const Navbar = () => {
                     onClick={() => {
                       closeMobileMenu();
                       setTimeout(() => {
-                        const el = document.getElementById("meet-learners-mobile");
+                        const el = document.getElementById(
+                          "meet-learners-mobile"
+                        );
                         if (el) el.scrollIntoView({ behavior: "smooth" });
                       }, 50);
                     }}
@@ -149,7 +177,9 @@ const Navbar = () => {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-sm">{authUser?.fullName}</p>
+                    <p className="font-semibold text-sm">
+                      {authUser?.fullName}
+                    </p>
                     <p className="text-xs text-success flex items-center gap-1">
                       <span className="size-2 rounded-full bg-success inline-block" />
                       Online

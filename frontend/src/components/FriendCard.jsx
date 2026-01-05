@@ -14,7 +14,7 @@ const FriendCard = ({ friend, unreadCount = 0 }) => {
           </div>
         </div>
       )}
-      
+
       <div className="card-body p-4">
         {/* USER INFO */}
         <div className="flex items-center gap-3 mb-3">
@@ -38,17 +38,19 @@ const FriendCard = ({ friend, unreadCount = 0 }) => {
           </span>
         </div>
 
-        <Link 
-          to={`/chat/${friend._id}`} 
-          className={`btn w-full ${unreadCount > 0 ? 'btn-primary' : 'btn-outline'}`}
+        <Link
+          to={`/chat/${friend._id}`}
+          className={`btn w-full ${
+            unreadCount > 0 ? "btn-primary" : "btn-outline"
+          }`}
         >
           {unreadCount > 0 ? (
             <>
               <MessageCircleIcon className="size-4" />
-              {unreadCount} New Message{unreadCount > 1 ? 's' : ''}
+              {unreadCount} New Message{unreadCount > 1 ? "s" : ""}
             </>
           ) : (
-            'Message'
+            "Message"
           )}
         </Link>
       </div>
