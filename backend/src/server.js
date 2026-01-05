@@ -12,7 +12,11 @@ import { connectDB } from "./lib/db.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || process.env.FRONTEND_ORIGIN || "http://localhost:5173")
+const FRONTEND_ORIGINS = (
+  process.env.FRONTEND_ORIGINS ||
+  process.env.FRONTEND_ORIGIN ||
+  "http://localhost:5173"
+)
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
@@ -21,14 +25,18 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., mobile apps, curl) and configured origins
-      if (!origin || FRONTEND_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true, // allow frontend to send cookies
+    origin:
+      process.env.NODE_ENV === "production"
+        ? true // allow same-origin in production
+        : (origin, callback) => {
+            const allowedOrigins = ["http://localhost:5173"];
+            if (!origin || allowedOrigins.includes(origin)) {
+              callback(null, true);
+            } else {
+              callback(new Error("Not allowed by CORS"));
+            }
+          },
+    credentials: true,
   })
 );
 
