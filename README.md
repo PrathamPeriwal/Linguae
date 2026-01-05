@@ -116,7 +116,7 @@ VITE_STREAM_API_KEY=your_stream_api_key
 #### Backend Setup
 
 ```bash
-cd backen
+cd backend
 npm run dev
 ```
 
@@ -161,12 +161,8 @@ linguae/
 │   │   ├── main.jsx
 │   │   └── index.css
 │   ├── public/
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
 │   ├── .env
-│   └── eslint.config.js
+│   └── configuration files
 │
 ├── package.json
 └── README.md
