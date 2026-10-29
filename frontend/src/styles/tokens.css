@@ -1,0 +1,73 @@
+:root {
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", "Noto Sans", system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", "Noto Sans", system-ui, sans-serif;
+
+  --text-display-xl: clamp(3.5rem, 11vw, 10rem);
+  --text-display-l: clamp(2.5rem, 6vw, 5rem);
+  --text-h1: 2.25rem;
+  --text-h2: 1.5rem;
+  --text-h3: 1.125rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-caption: 0.75rem;
+
+  --leading-display-xl: 0.9;
+  --leading-display-l: 0.95;
+  --leading-body: 1.55;
+  --tracking-display: -0.04em;
+
+  --radius-control: 10px;
+  --radius-card: 20px;
+  --radius-panel: 32px;
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 360ms;
+  --duration-hero: 700ms;
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Dark is the default. Repeated on [data-theme="dark"] so a nested theme can override light. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: 20 5 15;
+  --panel: 31 10 27;
+  --raised: 58 15 52;
+  --raised-hover: 77 25 70;
+  --line: 221 227 232;
+  --line-strength: 0.12;
+  --fg: 221 227 232;
+  --fg-muted: 221 227 232;
+  --fg-muted-strength: 0.64;
+  --accent: 234 170 0;
+  --accent-hover: 255 197 46;
+  --on-accent: 26 8 20;
+  --highlight: 234 170 0;
+  --ember: 240 112 28;
+  --lilac: 199 162 222;
+  --success: 95 211 165;
+  --danger: 255 107 129;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: 221 227 232;
+  --panel: 233 237 241;
+  --raised: 246 248 250;
+  --raised-hover: 255 255 255;
+  --line: 58 15 52;
+  --line-strength: 0.14;
+  --fg: 42 11 37;
+  --fg-muted: 58 15 52;
+  --fg-muted-strength: 0.68;
+  --accent: 58 15 52;
+  --accent-hover: 82 21 71;
+  --on-accent: 221 227 232;
+  --highlight: 234 170 0;
+  --ember: 240 112 28;
+  --lilac: 122 62 142;
+  --success: 31 143 106;
+  --danger: 196 40 74;
+}

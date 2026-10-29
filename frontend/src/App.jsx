@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from "react-router";
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 
 import HomePage from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
@@ -8,25 +9,45 @@ import CallPage from "./pages/CallPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "./components/ui/Toaster.jsx";
 
 import PageLoader from "./components/PageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
 import Layout from "./components/Layout.jsx";
 import { useThemeStore } from "./store/useThemeStore.js";
 
+const KitPage = import.meta.env.DEV ? lazy(() => import("./pages/KitPage.jsx")) : null;
+
 const App = () => {
   const { isLoading, authUser } = useAuthUser();
   const { theme } = useThemeStore();
+  const location = useLocation();
+  const isKit = import.meta.env.DEV && location.pathname === "/_kit";
 
   const isAuthenticated = Boolean(authUser);
   const isOnboarded = authUser?.isOnboarded;
 
-  if (isLoading) return <PageLoader />;
+  if (isLoading && !isKit) return <PageLoader />;
 
   return (
-    <div className="h-screen" data-theme={theme}>
+    <div className={isKit ? "min-h-screen" : "h-screen"} data-theme={theme}>
       <Routes>
+        {import.meta.env.DEV ? (
+          <Route
+            path="/_kit"
+            element={
+              <Suspense
+                fallback={
+                  <div className="min-h-screen bg-bg p-6">
+                    <div className="h-8 w-40 animate-pulse rounded-control bg-raised" />
+                  </div>
+                }
+              >
+                <KitPage />
+              </Suspense>
+            }
+          />
+        ) : null}
         <Route
           path="/"
           element={
