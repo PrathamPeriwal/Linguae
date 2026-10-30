@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Inbox, Search } from "lucide-react";
+import { Inbox, Search, Trash2 } from "lucide-react";
 import {
   Avatar,
   Button,
@@ -19,11 +19,12 @@ import {
   Textarea,
   ThemeToggle,
 } from "../components/ui";
+import { cn } from "../lib/cn";
 
 const portrait =
   "data:image/svg+xml," +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#EAAA00"/><circle cx="40" cy="32" r="12" fill="#1A0814"/><rect x="22" y="50" width="36" height="22" rx="11" fill="#1A0814"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#FF8A94"/><circle cx="40" cy="32" r="12" fill="#2A0B25"/><rect x="22" y="50" width="36" height="22" rx="11" fill="#2A0B25"/></svg>',
   );
 
 const swatches = [
@@ -31,11 +32,16 @@ const swatches = [
   ["panel", "bg-panel"],
   ["raised", "bg-raised"],
   ["accent", "bg-accent"],
-  ["highlight", "bg-highlight"],
+  ["spark", "bg-spark"],
   ["ember", "bg-ember"],
-  ["lilac", "bg-lilac"],
   ["success", "bg-success"],
   ["danger", "bg-danger"],
+];
+
+const accents = [
+  ["coral", "bg-[#FF8A94]"],
+  ["salmon", "bg-[#FF7A6B]"],
+  ["apricot", "bg-[#FFB38F]"],
 ];
 
 function Section({ title, children }) {
@@ -47,13 +53,78 @@ function Section({ title, children }) {
   );
 }
 
+function AccentSwitcher() {
+  const [accent, setAccent] = useState("coral");
+
+  useEffect(() => {
+    document.documentElement.dataset.accent = accent;
+  }, [accent]);
+
+  useEffect(() => {
+    return () => {
+      delete document.documentElement.dataset.accent;
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Accent">
+      {accents.map(([name, dot]) => (
+        <button
+          key={name}
+          type="button"
+          aria-pressed={accent === name}
+          onClick={() => setAccent(name)}
+          className={cn(
+            "inline-flex h-11 items-center gap-2 rounded-control border px-3 text-small capitalize",
+            accent === name ? "border-accent" : "border-line",
+          )}
+        >
+          <span className={cn("size-3 rounded-full", dot)} aria-hidden="true" />
+          {name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function RevealSample() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <button
+      type="button"
+      className="group w-full max-w-xs rounded-card bg-raised p-4 text-left"
+      onClick={() => setOpen((value) => !value)}
+    >
+      <span className="block font-display text-h1 text-fg" lang="es">
+        Hola
+      </span>
+      <span className="relative mt-2 block overflow-hidden">
+        <span className="block py-2 text-small text-fg">means Hello</span>
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute inset-0 bg-spark transition-transform duration-base ease-exit motion-reduce:transition-none",
+            "group-hover:-translate-x-[110%] group-focus-visible:-translate-x-[110%]",
+            open && "-translate-x-[110%]",
+          )}
+        />
+      </span>
+    </button>
+  );
+}
+
 function ThemeColumn({ theme }) {
   const [portal, setPortal] = useState(null);
   const [pending, setPending] = useState(false);
   const [language, setLanguage] = useState("Spanish");
 
   return (
-    <div ref={setPortal} data-theme={theme} className="min-w-0 bg-bg px-4 py-6 text-fg sm:px-6">
+    <div
+      ref={setPortal}
+      data-theme={theme}
+      className={cn("min-w-0 px-4 py-6 text-fg sm:px-6", theme === "light" && "bg-bg")}
+    >
       <p className="text-caption text-fg-muted">{theme === "dark" ? "Dark" : "Light"}</p>
 
       <Section title="Type">
@@ -78,9 +149,60 @@ function ThemeColumn({ theme }) {
             </div>
           ))}
         </div>
-        <p className="w-fit rounded-control bg-highlight px-2 py-1 text-small text-[#1A0814]">
-          Highlight keeps dark text
+        <p className="w-fit rounded-control bg-spark px-2 py-1 text-small text-[#2A0B25]">
+          Spark keeps dark text
         </p>
+      </Section>
+
+      <Section title="Depth">
+        <article className="max-w-sm rounded-card bg-raised p-5 transition-colors duration-base ease-enter hover:bg-raised-hover">
+          <h3 className="text-h3 text-fg">A raised card</h3>
+          <p className="mt-1 text-small text-fg-muted">Hover to step up a tone.</p>
+        </article>
+      </Section>
+
+      <Section title="Hero">
+        <div className="relative overflow-hidden rounded-panel py-16 pe-4 ps-6">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -end-8 top-1/2 size-64 -translate-y-1/2"
+          >
+            <div className="bloom absolute inset-0" />
+            <div className="absolute start-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember" />
+          </div>
+          <p className="relative font-display text-display-xl text-fg" lang="en">
+            Hello
+          </p>
+        </div>
+      </Section>
+
+      <Section title="Chat">
+        <div className="panel-glow flex max-w-md flex-col gap-3 rounded-panel p-4">
+          <div className="flex items-end gap-2">
+            <div className="max-w-[85%] rounded-card bg-panel px-3 py-2">
+              <p className="text-body text-fg">Hola. Want to practise English?</p>
+              <p className="mt-1 text-caption text-fg-muted">09:14</p>
+            </div>
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-spark px-1.5 text-caption font-semibold text-[#2A0B25]">
+              2
+            </span>
+          </div>
+          <div className="max-w-[85%] self-end rounded-card bg-raised px-3 py-2">
+            <p className="text-body text-fg">Yes. Hello.</p>
+            <p className="mt-1 text-caption text-fg-muted">09:15</p>
+          </div>
+          <div className="flex w-fit items-center rounded-card bg-panel px-3 py-2" role="status" aria-label="Typing">
+            <span className="typing-dots" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Reveal">
+        <RevealSample />
       </Section>
 
       <Section title="Buttons">
@@ -88,7 +210,16 @@ function ThemeColumn({ theme }) {
           <Button>Primary</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button variant="danger">Danger</Button>
+          <Button variant="danger">
+            <Trash2 aria-hidden="true" />
+            Remove
+          </Button>
+          {theme === "light" ? (
+            <p className="inline-flex h-11 items-center gap-2 rounded-control bg-danger px-4 text-body font-semibold text-on-danger">
+              <Trash2 className="size-4" aria-hidden="true" />
+              Filled danger
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button size="sm">Small</Button>
@@ -202,13 +333,16 @@ function ThemeColumn({ theme }) {
 
 export default function KitPage() {
   return (
-    <div className="min-h-screen bg-bg text-fg">
-      <header className="flex items-center justify-between gap-4 border-b border-line px-4 py-4 sm:px-6">
+    <div className="min-h-screen text-fg">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-4 py-4 sm:px-6">
         <div>
           <h1 className="font-display text-h1">Component kit</h1>
           <p className="text-small text-fg-muted">Dev only. Both themes, including loading, empty, and error.</p>
         </div>
-        <ThemeToggle />
+        <div className="flex flex-wrap items-center gap-3">
+          <AccentSwitcher />
+          <ThemeToggle />
+        </div>
       </header>
       <div className="grid lg:grid-cols-2">
         <ThemeColumn theme="dark" />

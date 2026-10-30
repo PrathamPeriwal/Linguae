@@ -26,11 +26,11 @@ export default {
         accent: rgb("accent"),
         "accent-hover": rgb("accent-hover"),
         "on-accent": rgb("on-accent"),
-        highlight: rgb("highlight"),
+        spark: rgb("spark"),
         ember: rgb("ember"),
-        lilac: rgb("lilac"),
         success: rgb("success"),
         danger: rgb("danger"),
+        "on-danger": rgb("on-danger"),
       },
       fontFamily: {
         display: "var(--font-display)",

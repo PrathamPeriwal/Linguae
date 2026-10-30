@@ -7,7 +7,7 @@ export function resolveTheme(value) {
 }
 
 const THEME_COLOR = {
-  dark: "#14050F",
+  dark: "#190718",
   light: "#DDE3E8",
 };
 

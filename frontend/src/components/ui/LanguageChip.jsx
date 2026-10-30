@@ -7,7 +7,7 @@ const chipVariants = cva("inline-flex items-center gap-1.5 rounded-full px-2.5 p
   variants: {
     variant: {
       native: "border border-line text-fg",
-      learning: "bg-lilac/15 text-lilac",
+      learning: "bg-accent/[0.16] text-accent",
     },
   },
   defaultVariants: {

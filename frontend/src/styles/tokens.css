@@ -26,48 +26,91 @@
   --duration-hero: 700ms;
   --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Dark is the default. Repeated on [data-theme="dark"] so a nested theme can override light. */
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: 20 5 15;
-  --panel: 31 10 27;
-  --raised: 58 15 52;
-  --raised-hover: 77 25 70;
+  --bg: 25 7 24; /* #190718 */
+  --panel: 37 12 39; /* #250C27 */
+  --raised: 58 15 52; /* #3A0F34 */
+  --raised-hover: 75 25 68; /* #4B1944 */
   --line: 221 227 232;
   --line-strength: 0.12;
-  --fg: 221 227 232;
+  --fg: 221 227 232; /* #DDE3E8 */
   --fg-muted: 221 227 232;
-  --fg-muted-strength: 0.64;
-  --accent: 234 170 0;
-  --accent-hover: 255 197 46;
-  --on-accent: 26 8 20;
-  --highlight: 234 170 0;
-  --ember: 240 112 28;
-  --lilac: 199 162 222;
-  --success: 95 211 165;
-  --danger: 255 107 129;
+  --fg-muted-strength: 0.66;
+  --accent: 255 138 148; /* #FF8A94 coral */
+  --accent-hover: 255 163 171; /* #FFA3AB */
+  --on-accent: 42 11 37; /* #2A0B25 */
+  --spark: 255 138 148; /* #FF8A94 */
+  --ember: 255 122 69; /* #FF7A45 */
+  --success: 95 211 165; /* #5FD3A5 */
+  --danger: 255 75 75; /* #FF4B4B */
+  --on-danger: 42 11 37; /* #2A0B25 */
 }
 
 [data-theme="light"] {
   color-scheme: light;
-  --bg: 221 227 232;
-  --panel: 233 237 241;
-  --raised: 246 248 250;
+  --bg: 221 227 232; /* #DDE3E8 */
+  --panel: 233 237 241; /* #E9EDF1 */
+  --raised: 246 248 250; /* #F6F8FA */
   --raised-hover: 255 255 255;
-  --line: 58 15 52;
+  --line: 58 15 52; /* #3A0F34 */
   --line-strength: 0.14;
-  --fg: 42 11 37;
+  --fg: 42 11 37; /* #2A0B25 */
   --fg-muted: 58 15 52;
   --fg-muted-strength: 0.68;
-  --accent: 58 15 52;
-  --accent-hover: 82 21 71;
-  --on-accent: 221 227 232;
-  --highlight: 234 170 0;
-  --ember: 240 112 28;
-  --lilac: 122 62 142;
-  --success: 31 143 106;
-  --danger: 196 40 74;
+  --accent: 58 15 52; /* #3A0F34 */
+  --accent-hover: 82 21 71; /* #521547 */
+  --on-accent: 221 227 232; /* #DDE3E8 */
+  --spark: 255 138 148; /* #FF8A94 */
+  --ember: 255 122 69; /* #FF7A45 */
+  --success: 31 143 106; /* #1F8F6A */
+  --danger: 196 40 74; /* #C4284A */
+  --on-danger: 255 255 255;
+}
+
+/*
+  Dev accent review. data-accent is set on <html> from /_kit only.
+  Dark mode swaps accent, accent-hover and spark. Light mode swaps spark only.
+  Salmon and apricot hovers use the same lift as coral → coral-hover (+0, +25, +23).
+*/
+html[data-accent="coral"]:not([data-theme="light"]),
+html[data-accent="coral"] [data-theme="dark"] {
+  --accent: 255 138 148;
+  --accent-hover: 255 163 171;
+  --spark: 255 138 148;
+}
+
+html[data-accent="salmon"]:not([data-theme="light"]),
+html[data-accent="salmon"] [data-theme="dark"] {
+  --accent: 255 122 107; /* #FF7A6B */
+  --accent-hover: 255 147 130; /* #FF9382 */
+  --spark: 255 122 107;
+}
+
+html[data-accent="apricot"]:not([data-theme="light"]),
+html[data-accent="apricot"] [data-theme="dark"] {
+  --accent: 255 179 143; /* #FFB38F */
+  --accent-hover: 255 204 166; /* #FFCCA6 */
+  --spark: 255 179 143;
+}
+
+html[data-accent="coral"][data-theme="light"],
+html[data-accent="coral"] [data-theme="light"] {
+  --spark: 255 138 148;
+}
+
+html[data-accent="salmon"][data-theme="light"],
+html[data-accent="salmon"] [data-theme="light"] {
+  --spark: 255 122 107;
+}
+
+html[data-accent="apricot"][data-theme="light"],
+html[data-accent="apricot"] [data-theme="light"] {
+  --spark: 255 179 143;
 }

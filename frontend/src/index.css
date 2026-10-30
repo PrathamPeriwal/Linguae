@@ -35,3 +35,14 @@
 .str-chat__message-input {
   border-top: 1px solid #ddd;
 }
+
+/* After daisyUI, so our ground wins inside @layer base and utilities still override it. */
+@layer base {
+  [data-theme="dark"] {
+    background-color: transparent;
+  }
+
+  [data-theme="light"] {
+    background-color: rgb(var(--bg));
+  }
+}

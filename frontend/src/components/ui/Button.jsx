@@ -3,14 +3,14 @@ import { Loader2 } from "lucide-react";
 import { cn } from "../../lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex w-fit items-center justify-center gap-2 rounded-control font-sans font-semibold transition duration-fast ease-enter disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex w-fit items-center justify-center gap-2 rounded-control border border-transparent font-sans font-semibold transition duration-fast ease-enter disabled:pointer-events-none",
   {
     variants: {
       variant: {
         primary: "primary-glow bg-accent text-on-accent hover:bg-accent-hover",
-        secondary: "border border-line bg-transparent text-fg hover:bg-raised",
+        secondary: "border-line bg-transparent text-fg hover:bg-raised",
         ghost: "bg-transparent text-fg hover:bg-raised",
-        danger: "bg-danger text-on-accent hover:bg-danger/90",
+        danger: "border-danger bg-transparent text-danger hover:bg-danger/10 [&_svg]:size-4",
       },
       size: {
         sm: "h-9 px-3 text-small",
@@ -38,7 +38,12 @@ export function Button({
   return (
     <button
       type={type}
-      className={cn(buttonVariants({ variant, size }), "relative", className)}
+      className={cn(
+        buttonVariants({ variant, size }),
+        "relative",
+        disabled && !loading && "border-dashed border-line bg-panel text-fg-muted",
+        className,
+      )}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...props}
