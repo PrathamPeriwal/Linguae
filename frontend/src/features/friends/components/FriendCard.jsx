@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { LANGUAGE_TO_FLAG } from "../constants";
+import { LANGUAGE_TO_FLAG } from "../../../lib/languages";
 import { MessageCircleIcon } from "lucide-react";
 
 const FriendCard = ({ friend, unreadCount = 0 }) => {

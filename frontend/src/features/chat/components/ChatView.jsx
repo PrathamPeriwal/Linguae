@@ -1,8 +1,8 @@
+import "stream-chat-react/dist/css/v2/index.css";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import useAuthUser from "../hooks/useAuthUser";
-import { useQuery } from "@tanstack/react-query";
-import { getStreamToken } from "../lib/api";
+import useAuthUser from "../../auth/hooks/useAuthUser";
+import { useStreamChat } from "../streamChatContext";
 
 import {
   Channel,
@@ -13,53 +13,28 @@ import {
   Thread,
   Window,
 } from "stream-chat-react";
-import { StreamChat } from "stream-chat";
 import toast from "react-hot-toast";
 
-import ChatLoader from "../components/ChatLoader";
-import CallButton from "../components/CallButton";
+import ChatLoader from "./ChatLoader";
+import CallButton from "./CallButton";
 
-const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
-
-const ChatPage = () => {
+const ChatView = () => {
   const { id: targetUserId } = useParams();
 
-  const [chatClient, setChatClient] = useState(null);
   const [channel, setChannel] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { authUser } = useAuthUser();
-
-  const { data: tokenData } = useQuery({
-    queryKey: ["streamToken"],
-    queryFn: getStreamToken,
-    enabled: !!authUser, // this will run only when authUser is available
-  });
+  const { client } = useStreamChat();
 
   useEffect(() => {
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) return;
+      if (!client || !authUser) return;
 
       try {
         console.log("Initializing stream chat client...");
 
-        const client = StreamChat.getInstance(STREAM_API_KEY);
-
-        await client.connectUser(
-          {
-            id: authUser._id,
-            name: authUser.fullName,
-            image: authUser.profilePic,
-          },
-          tokenData.token
-        );
-
-        //
         const channelId = [authUser._id, targetUserId].sort().join("-");
-
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
 
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
@@ -67,7 +42,6 @@ const ChatPage = () => {
 
         await currChannel.watch();
 
-        setChatClient(client);
         setChannel(currChannel);
       } catch (error) {
         console.error("Error initializing chat:", error);
@@ -78,7 +52,7 @@ const ChatPage = () => {
     };
 
     initChat();
-  }, [tokenData, authUser, targetUserId]);
+  }, [client, authUser, targetUserId]);
 
   const handleVideoCall = () => {
     if (channel) {
@@ -92,11 +66,11 @@ const ChatPage = () => {
     }
   };
 
-  if (loading || !chatClient || !channel) return <ChatLoader />;
+  if (loading || !client || !channel) return <ChatLoader />;
 
   return (
     <div className="h-[93vh]">
-      <Chat client={chatClient}>
+      <Chat client={client}>
         <Channel channel={channel}>
           <div className="w-full relative">
             <CallButton handleVideoCall={handleVideoCall} />
@@ -112,4 +86,4 @@ const ChatPage = () => {
     </div>
   );
 };
-export default ChatPage;
+export default ChatView;

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import useAuthUser from "../hooks/useAuthUser";
+import useAuthUser from "../../auth/hooks/useAuthUser";
 import { useQuery } from "@tanstack/react-query";
-import { getStreamToken } from "../lib/api";
+import { getStreamToken } from "../../chat/api";
+import { queryKeys } from "../../../lib/queryKeys";
+import { setActiveVideoClient } from "../videoClient";
 
 import {
   StreamVideo,
@@ -17,11 +19,11 @@ import {
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import toast from "react-hot-toast";
-import PageLoader from "../components/PageLoader";
+import PageLoader from "../../../components/layout/PageLoader";
 
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
-const CallPage = () => {
+const CallView = () => {
   const { id: callId } = useParams();
   const [client, setClient] = useState(null);
   const [call, setCall] = useState(null);
@@ -30,7 +32,7 @@ const CallPage = () => {
   const { authUser, isLoading } = useAuthUser();
 
   const { data: tokenData } = useQuery({
-    queryKey: ["streamToken"],
+    queryKey: queryKeys.streamToken(),
     queryFn: getStreamToken,
     enabled: !!authUser,
   });
@@ -62,6 +64,7 @@ const CallPage = () => {
 
         setClient(videoClient);
         setCall(callInstance);
+        setActiveVideoClient(videoClient);
       } catch (error) {
         console.error("Error joining call:", error);
         toast.error("Could not join the call. Please try again.");
@@ -110,4 +113,4 @@ const CallContent = () => {
   );
 };
 
-export default CallPage;
+export default CallView;

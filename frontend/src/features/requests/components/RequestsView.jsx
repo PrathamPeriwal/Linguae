@@ -1,26 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { acceptFriendRequest, getFriendRequests } from "../lib/api";
+import { acceptFriendRequest, getFriendRequests } from "../api";
+import { queryKeys } from "../../../lib/queryKeys";
+import { listQueryOptions } from "../../../app/queryClient";
 import {
   BellIcon,
   ClockIcon,
   MessageSquareIcon,
   UserCheckIcon,
 } from "lucide-react";
-import NoNotificationsFound from "../components/NoNotificationsFound";
+import NoNotificationsFound from "./NoNotificationsFound";
 
-const NotificationsPage = () => {
+const RequestsView = () => {
   const queryClient = useQueryClient();
 
   const { data: friendRequests, isLoading } = useQuery({
-    queryKey: ["friendRequests"],
+    queryKey: queryKeys.friendRequests(),
     queryFn: getFriendRequests,
+    ...listQueryOptions,
   });
 
   const { mutate: acceptRequestMutation, isPending } = useMutation({
     mutationFn: acceptFriendRequest,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.friendRequests() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.friends() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.outgoingFriendReqs(),
+      });
     },
   });
 
@@ -51,7 +58,8 @@ const NotificationsPage = () => {
                 </h2>
 
                 <div className="space-y-3">
-                  {incomingRequests.map((request) => (
+                  {incomingRequests.map((request) =>
+                  !request.sender ? null : (
                     <div
                       key={request._id}
                       className="card bg-base-200 shadow-sm hover:shadow-md transition-shadow"
@@ -104,7 +112,8 @@ const NotificationsPage = () => {
                 </h2>
 
                 <div className="space-y-3">
-                  {acceptedRequests.map((notification) => (
+                  {acceptedRequests.map((notification) =>
+                  !notification.recipient ? null : (
                     <div
                       key={notification._id}
                       className="card bg-base-200 shadow-sm"
@@ -151,4 +160,4 @@ const NotificationsPage = () => {
     </div>
   );
 };
-export default NotificationsPage;
+export default RequestsView;

@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router";
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BellIcon,
@@ -7,93 +6,24 @@ import {
   MessageCircleIcon,
   ShipWheelIcon,
 } from "lucide-react";
-import { StreamChat } from "stream-chat";
-import useAuthUser from "../hooks/useAuthUser";
-import { getStreamToken, getUserFriends } from "../lib/api";
+import useAuthUser from "../../features/auth/hooks/useAuthUser";
+import { getUserFriends } from "../../features/friends/api";
+import { queryKeys } from "../../lib/queryKeys";
+import { listQueryOptions } from "../../app/queryClient";
+import { useStreamChat } from "../../features/chat/streamChatContext";
 
 const Sidebar = () => {
   const { authUser } = useAuthUser();
   const location = useLocation();
   const currentPath = location.pathname;
-
-  const [unreadCounts, setUnreadCounts] = useState({});
-  const [chatClient, setChatClient] = useState(null);
+  const { unreadCounts } = useStreamChat();
 
   const { data: friends = [] } = useQuery({
-    queryKey: ["sidebar-friends"],
+    queryKey: queryKeys.friends(),
     queryFn: getUserFriends,
     enabled: !!authUser,
+    ...listQueryOptions,
   });
-
-  const { data: tokenData } = useQuery({
-    queryKey: ["sidebar-stream-token"],
-    queryFn: getStreamToken,
-    enabled: !!authUser,
-  });
-
-  // Initialize Stream Chat and fetch unread counts for friends (desktop only sidebar)
-  useEffect(() => {
-    const init = async () => {
-      if (!tokenData?.token || !authUser || !friends.length) return;
-
-      try {
-        const client = StreamChat.getInstance(
-          import.meta.env.VITE_STREAM_API_KEY
-        );
-
-        if (!client.userID) {
-          await client.connectUser(
-            {
-              id: authUser._id,
-              name: authUser.fullName,
-              image: authUser.profilePic,
-            },
-            tokenData.token
-          );
-        }
-
-        setChatClient(client);
-
-        const counts = {};
-        for (const friend of friends) {
-          const channelId = [authUser._id, friend._id].sort().join("-");
-          const channel = client.channel("messaging", channelId);
-          await channel.watch();
-          const unreadCount = channel.state.unreadCount || 0;
-          if (unreadCount > 0) counts[friend._id] = unreadCount;
-        }
-        setUnreadCounts(counts);
-      } catch (err) {
-        console.error("Sidebar chat init failed", err);
-      }
-    };
-
-    init();
-
-    return () => {
-      if (chatClient) {
-        chatClient.disconnectUser().catch(console.error);
-      }
-    };
-  }, [tokenData, authUser, friends]);
-
-  // Live update unread counts
-  useEffect(() => {
-    if (!chatClient) return;
-
-    const handler = (event) => {
-      if (event.user.id !== authUser._id) {
-        const senderId = event.user.id;
-        setUnreadCounts((prev) => ({
-          ...prev,
-          [senderId]: (prev[senderId] || 0) + 1,
-        }));
-      }
-    };
-
-    chatClient.on("message.new", handler);
-    return () => chatClient.off("message.new", handler);
-  }, [chatClient, authUser]);
 
   return (
     <aside className="w-64 bg-base-200 border-r border-base-300 hidden lg:flex flex-col h-screen sticky top-0">

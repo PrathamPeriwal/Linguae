@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { getRecommendedUsers } from "../api";
+import { getUserFriends } from "../../friends/api";
 import {
   getOutgoingFriendReqs,
-  getRecommendedUsers,
-  getUserFriends,
   sendFriendRequest,
-  getStreamToken,
-} from "../lib/api";
+} from "../../requests/api";
 import { Link } from "react-router";
 import {
   CheckCircleIcon,
@@ -15,136 +14,57 @@ import {
   UsersIcon,
 } from "lucide-react";
 
-import { capitialize } from "../lib/utils";
-import { LANGUAGES } from "../constants";
+import { capitialize } from "../../../lib/utils";
+import { LANGUAGES } from "../../../lib/languages";
+import { queryKeys } from "../../../lib/queryKeys";
+import { listQueryOptions } from "../../../app/queryClient";
+import { useStreamChat } from "../../chat/streamChatContext";
 
-import FriendCard, { getLanguageFlag } from "../components/FriendCard";
-import NoFriendsFound from "../components/NoFriendsFound";
-import { StreamChat } from "stream-chat";
-import useAuthUser from "../hooks/useAuthUser";
+import FriendCard, { getLanguageFlag } from "../../friends/components/FriendCard";
+import NoFriendsFound from "../../friends/components/NoFriendsFound";
 
-const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
-
-const HomePage = () => {
+const DiscoverView = () => {
   const queryClient = useQueryClient();
   const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
-  const [unreadCounts, setUnreadCounts] = useState({});
-  const [chatClient, setChatClient] = useState(null);
   const [languageFilter, setLanguageFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const { authUser } = useAuthUser();
+  const { unreadCounts } = useStreamChat();
 
   const { data: friends = [], isLoading: loadingFriends } = useQuery({
-    queryKey: ["friends"],
+    queryKey: queryKeys.friends(),
     queryFn: getUserFriends,
+    ...listQueryOptions,
   });
 
   const { data: recommendedUsers = [], isLoading: loadingUsers } = useQuery({
-    queryKey: ["users"],
+    queryKey: queryKeys.users(),
     queryFn: getRecommendedUsers,
+    ...listQueryOptions,
   });
 
   const { data: outgoingFriendReqs } = useQuery({
-    queryKey: ["outgoingFriendReqs"],
+    queryKey: queryKeys.outgoingFriendReqs(),
     queryFn: getOutgoingFriendReqs,
-  });
-
-  const { data: tokenData } = useQuery({
-    queryKey: ["streamToken"],
-    queryFn: getStreamToken,
-    enabled: !!authUser,
+    ...listQueryOptions,
   });
 
   const { mutate: sendRequestMutation, isPending } = useMutation({
     mutationFn: sendFriendRequest,
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.outgoingFriendReqs(),
+      }),
   });
 
   useEffect(() => {
     const outgoingIds = new Set();
-    if (outgoingFriendReqs && outgoingFriendReqs.length > 0) {
+    if (outgoingFriendReqs?.length) {
       outgoingFriendReqs.forEach((req) => {
-        outgoingIds.add(req.recipient._id);
+        if (req.recipient?._id) outgoingIds.add(req.recipient._id);
       });
-      setOutgoingRequestsIds(outgoingIds);
     }
+    setOutgoingRequestsIds(outgoingIds);
   }, [outgoingFriendReqs]);
-
-  // Initialize Stream Chat to get unread counts
-  useEffect(() => {
-    const initStreamChat = async () => {
-      if (!tokenData?.token || !authUser || !friends.length) return;
-
-      try {
-        const client = StreamChat.getInstance(STREAM_API_KEY);
-
-        // Check if already connected
-        if (!client.userID) {
-          await client.connectUser(
-            {
-              id: authUser._id,
-              name: authUser.fullName,
-              image: authUser.profilePic,
-            },
-            tokenData.token
-          );
-        }
-
-        setChatClient(client);
-
-        // Get unread counts for each friend
-        const counts = {};
-        for (const friend of friends) {
-          const channelId = [authUser._id, friend._id].sort().join("-");
-          try {
-            const channel = client.channel("messaging", channelId);
-            await channel.watch();
-            const state = channel.state;
-            const unreadCount = state.unreadCount || 0;
-            if (unreadCount > 0) {
-              counts[friend._id] = unreadCount;
-            }
-          } catch (error) {
-            console.log(`Could not fetch channel for ${friend._id}`, error);
-          }
-        }
-        setUnreadCounts(counts);
-      } catch (error) {
-        console.error("Error initializing Stream Chat:", error);
-      }
-    };
-
-    initStreamChat();
-
-    // Cleanup on unmount
-    return () => {
-      if (chatClient) {
-        chatClient.disconnectUser().catch(console.error);
-      }
-    };
-  }, [tokenData, authUser, friends]);
-
-  // Listen for new messages to update unread counts
-  useEffect(() => {
-    if (!chatClient) return;
-
-    const handleNewMessage = (event) => {
-      if (event.user.id !== authUser._id) {
-        const senderId = event.user.id;
-        setUnreadCounts((prev) => ({
-          ...prev,
-          [senderId]: (prev[senderId] || 0) + 1,
-        }));
-      }
-    };
-
-    chatClient.on("message.new", handleNewMessage);
-
-    return () => {
-      chatClient.off("message.new", handleNewMessage);
-    };
-  }, [chatClient, authUser]);
 
   const filteredRecommendedUsers = recommendedUsers.filter((user) => {
     const term = searchTerm.trim().toLowerCase();
@@ -473,4 +393,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default DiscoverView;

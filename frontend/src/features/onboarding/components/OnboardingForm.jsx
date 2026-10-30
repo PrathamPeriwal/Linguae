@@ -1,17 +1,19 @@
 import { useState } from "react";
-import useAuthUser from "../hooks/useAuthUser";
+import useAuthUser from "../../auth/hooks/useAuthUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { completeOnboarding } from "../lib/api";
+import { completeOnboarding } from "../api";
+import { getErrorMessage } from "../../../lib/errors";
+import { queryKeys } from "../../../lib/queryKeys";
 import {
   LoaderIcon,
   MapPinIcon,
   ShipWheelIcon,
   ShuffleIcon,
 } from "lucide-react";
-import { LANGUAGES } from "../constants";
+import { LANGUAGES } from "../../../lib/languages";
 
-const OnboardingPage = () => {
+const OnboardingForm = () => {
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
 
@@ -28,11 +30,11 @@ const OnboardingPage = () => {
     mutationFn: completeOnboarding,
     onSuccess: () => {
       toast.success("Profile onboarded successfully");
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.authUser() });
     },
 
     onError: (error) => {
-      toast.error(error.response.data.message);
+      toast.error(getErrorMessage(error));
     },
   });
 
@@ -220,4 +222,4 @@ const OnboardingPage = () => {
     </div>
   );
 };
-export default OnboardingPage;
+export default OnboardingForm;

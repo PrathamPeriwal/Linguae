@@ -2,8 +2,9 @@ import { useState } from "react";
 import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
 import useLogin from "../hooks/useLogin";
+import { getErrorMessage } from "../../../lib/errors";
 
-const LoginPage = () => {
+const LoginForm = () => {
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -40,7 +41,7 @@ const LoginPage = () => {
           {/* ERROR MESSAGE DISPLAY */}
           {error && (
             <div className="alert alert-error mb-4">
-              <span>{error.response.data.message}</span>
+              <span>{getErrorMessage(error)}</span>
             </div>
           )}
 
@@ -146,4 +147,4 @@ const LoginPage = () => {
     </div>
   );
 };
-export default LoginPage;
+export default LoginForm;

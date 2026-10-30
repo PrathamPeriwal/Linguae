@@ -1,8 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { logout } from "../lib/api";
+import { useNavigate } from "react-router";
+import { logout } from "../api";
+import { disconnectChat } from "../../chat/chatSession";
+import { disconnectVideo } from "../../call/videoClient";
 
 const useLogout = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const {
     mutate: logoutMutation,
@@ -10,7 +14,12 @@ const useLogout = () => {
     error,
   } = useMutation({
     mutationFn: logout,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+    onSuccess: async () => {
+      await disconnectChat();
+      await disconnectVideo();
+      queryClient.clear();
+      navigate("/login");
+    },
   });
 
   return { logoutMutation, isPending, error };
