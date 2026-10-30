@@ -116,14 +116,134 @@ html[data-theme="light"] [data-theme="dark"]::after {
 }
 
 .bloom {
+  position: absolute;
+  z-index: 0;
+  inset: -30%;
+  pointer-events: none;
   border-radius: 999px;
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgb(var(--spark) / 0.95) 0%,
-    rgb(58 15 52 / 0.72) 46%,
-    transparent 70%
-  );
-  filter: blur(18px);
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      rgb(var(--ember) / 0.55) 0%,
+      rgb(var(--ember) / 0.18) 12%,
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 46% 42%,
+      rgb(var(--spark) / 0.72) 0%,
+      rgb(112 36 86 / 0.5) 36%,
+      rgb(58 15 52 / 0.28) 54%,
+      transparent 72%
+    );
+  filter: blur(28px);
+  animation: bloom-drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes bloom-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(3%, -2.5%, 0) scale(1.06);
+  }
+}
+
+/* Display-xl greeting. The floor is below the token's 3.5rem so the longest word fits at 360px. */
+.greeting-morph {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  width: max-content;
+  max-width: 100%;
+  justify-items: start;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 11vw, 10rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-align: left;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  user-select: none;
+}
+
+.greeting-sizer,
+.greeting-word {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.greeting-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.greeting-word {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  filter: blur(24px);
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+.greeting-word.is-current {
+  z-index: 1;
+  opacity: 1;
+  filter: blur(0);
+  letter-spacing: -0.04em;
+  pointer-events: auto;
+  transition:
+    opacity var(--duration-hero) var(--ease-enter),
+    filter var(--duration-hero) var(--ease-enter),
+    letter-spacing var(--duration-hero) var(--ease-enter);
+}
+
+.greeting-word.is-leaving {
+  transition:
+    opacity var(--duration-hero) var(--ease-exit),
+    filter var(--duration-hero) var(--ease-exit),
+    letter-spacing var(--duration-hero) var(--ease-exit);
+}
+
+.greeting-letter {
+  transition: color 400ms var(--ease-enter);
+}
+
+.reveal-bar {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  vertical-align: baseline;
+  cursor: pointer;
+}
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-rise {
+  animation: landing-rise 400ms var(--ease-enter) both;
 }
 
 .typing-dots {
@@ -182,6 +302,17 @@ html[data-theme="light"] [data-theme="dark"]::after {
   }
 
   .bloom {
+    animation: none;
+    filter: none;
+  }
+
+  .landing-rise {
+    animation: none;
+  }
+
+  .greeting-word,
+  .greeting-letter {
+    transition: none;
     filter: none;
   }
 

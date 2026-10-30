@@ -17,3 +17,6 @@ export { Toaster } from "./Toaster.jsx";
 export { ThemeToggle } from "./ThemeToggle.jsx";
 export { Dialog, DialogContent, DialogDescription, DialogClose } from "./Dialog.jsx";
 export { Logo } from "./Logo.jsx";
+export { Bloom } from "./Bloom.jsx";
+export { GreetingMorph } from "./GreetingMorph.jsx";
+export { RevealBar } from "./RevealBar.jsx";

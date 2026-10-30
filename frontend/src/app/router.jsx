@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import { AppShell } from "../components/layout/AppShell.jsx";
 import PageLoader from "../components/layout/PageLoader.jsx";
 
@@ -12,12 +12,27 @@ const CallPage = lazy(() => import("../pages/CallPage.jsx"));
 const ChatPage = lazy(() => import("../pages/ChatPage.jsx"));
 const OnboardingPage = lazy(() => import("../pages/OnboardingPage.jsx"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage.jsx"));
+const WelcomePage = lazy(() => import("../pages/WelcomePage.jsx"));
 const KitPage = import.meta.env.DEV
   ? lazy(() => import("../pages/KitPage.jsx"))
   : null;
 
 function withSuspense(node) {
   return <Suspense fallback={<PageLoader />}>{node}</Suspense>;
+}
+
+function OnboardedShell({ authUser }) {
+  const { pathname } = useLocation();
+
+  if (!authUser) {
+    return <Navigate to={pathname === "/" ? "/welcome" : "/login"} replace />;
+  }
+
+  if (!authUser.isOnboarded) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return <AppShell />;
 }
 
 export default function AppRoutes({ authUser }) {
@@ -29,21 +44,19 @@ export default function AppRoutes({ authUser }) {
       {import.meta.env.DEV ? (
         <Route path="/_kit" element={withSuspense(<KitPage />)} />
       ) : null}
-      <Route
-        element={
-          isAuthenticated && isOnboarded ? (
-            <AppShell />
-          ) : (
-            <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-          )
-        }
-      >
+      <Route element={<OnboardedShell authUser={authUser} />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/chats" element={<ChatsPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/chat/:id" element={<ChatPage />} />
         <Route path="/call/:id" element={<CallPage />} />
       </Route>
+      <Route
+        path="/welcome"
+        element={
+          isAuthenticated ? <Navigate to="/" replace /> : withSuspense(<WelcomePage />)
+        }
+      />
       <Route
         path="/signup"
         element={

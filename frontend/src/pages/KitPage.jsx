@@ -3,18 +3,21 @@ import toast from "react-hot-toast";
 import { Inbox, Search, Trash2 } from "lucide-react";
 import {
   Avatar,
+  Bloom,
   Button,
   ChatSkeleton,
   ConversationRowSkeleton,
   EmptyState,
   ErrorState,
   Field,
+  GreetingMorph,
   IconButton,
   Input,
   LanguageChip,
   LanguageCombobox,
   LearnerCardSkeleton,
   RequestRowSkeleton,
+  RevealBar,
   Skeleton,
   Textarea,
   ThemeToggle,
@@ -87,33 +90,6 @@ function AccentSwitcher() {
   );
 }
 
-function RevealSample() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <button
-      type="button"
-      className="group w-full max-w-xs rounded-card bg-raised p-4 text-left"
-      onClick={() => setOpen((value) => !value)}
-    >
-      <span className="block font-display text-h1 text-fg" lang="es">
-        Hola
-      </span>
-      <span className="relative mt-2 block overflow-hidden">
-        <span className="block py-2 text-small text-fg">means Hello</span>
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute inset-0 bg-spark transition-transform duration-base ease-exit motion-reduce:transition-none",
-            "group-hover:-translate-x-[110%] group-focus-visible:-translate-x-[110%]",
-            open && "-translate-x-[110%]",
-          )}
-        />
-      </span>
-    </button>
-  );
-}
-
 function ThemeColumn({ theme }) {
   const [portal, setPortal] = useState(null);
   const [pending, setPending] = useState(false);
@@ -162,24 +138,18 @@ function ThemeColumn({ theme }) {
       </Section>
 
       <Section title="Hero">
-        <div className="relative overflow-hidden rounded-panel py-16 pe-4 ps-6">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -end-8 top-1/2 size-64 -translate-y-1/2"
-          >
-            <div className="bloom absolute inset-0" />
-            <div className="absolute start-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember" />
+        <div className="relative overflow-visible py-16">
+          <div className="relative inline-block max-w-full overflow-visible">
+            <Bloom />
+            <GreetingMorph />
           </div>
-          <p className="relative font-display text-display-xl text-fg" lang="en">
-            Hello
-          </p>
         </div>
       </Section>
 
       <Section title="Chat">
         <div className="panel-glow flex max-w-md flex-col gap-3 rounded-panel p-4">
           <div className="flex items-end gap-2">
-            <div className="max-w-[85%] rounded-card bg-panel px-3 py-2">
+            <div className="max-w-[85%] rounded-card bg-raised px-3 py-2">
               <p className="text-body text-fg">Hola. Want to practise English?</p>
               <p className="mt-1 text-caption text-fg-muted">09:14</p>
             </div>
@@ -187,9 +157,9 @@ function ThemeColumn({ theme }) {
               2
             </span>
           </div>
-          <div className="max-w-[85%] self-end rounded-card bg-raised px-3 py-2">
-            <p className="text-body text-fg">Yes. Hello.</p>
-            <p className="mt-1 text-caption text-fg-muted">09:15</p>
+          <div className="max-w-[85%] self-end rounded-card bg-accent px-3 py-2">
+            <p className="text-body text-on-accent">Yes. Hello.</p>
+            <p className="mt-1 text-caption text-on-accent/70">09:15</p>
           </div>
           <div className="flex w-fit items-center rounded-card bg-panel px-3 py-2" role="status" aria-label="Typing">
             <span className="typing-dots" aria-hidden="true">
@@ -202,7 +172,15 @@ function ThemeColumn({ theme }) {
       </Section>
 
       <Section title="Reveal">
-        <RevealSample />
+        <p className="max-w-[65ch] text-body text-fg">
+          Every conversation starts with a <RevealBar>hello</RevealBar>.
+        </p>
+        <p className="font-display text-h1 text-fg" lang="es">
+          Hola
+        </p>
+        <p className="text-small text-fg">
+          <RevealBar>means Hello</RevealBar>
+        </p>
       </Section>
 
       <Section title="Buttons">

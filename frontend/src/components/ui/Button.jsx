@@ -1,5 +1,6 @@
 import { cva } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
+import { Link } from "react-router";
 import { cn } from "../../lib/cn";
 
 const buttonVariants = cva(
@@ -33,27 +34,43 @@ export function Button({
   className,
   children,
   type = "button",
+  to,
   ...props
 }) {
-  return (
-    <button
-      type={type}
-      className={cn(
-        buttonVariants({ variant, size }),
-        "relative",
-        disabled && !loading && "border-dashed border-line bg-panel text-fg-muted",
-        className,
-      )}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      {...props}
-    >
+  const classes = cn(
+    buttonVariants({ variant, size }),
+    "relative",
+    disabled && !loading && "border-dashed border-line bg-panel text-fg-muted",
+    className,
+  );
+  const content = (
+    <>
       <span className={cn("inline-flex items-center gap-2", loading && "invisible")}>{children}</span>
       {loading ? (
         <span className="absolute inset-0 flex items-center justify-center">
           <Loader2 className="size-4 animate-spin" aria-hidden="true" />
         </span>
       ) : null}
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className={classes} aria-disabled={disabled || loading || undefined} {...props}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type={type}
+      className={classes}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...props}
+    >
+      {content}
     </button>
   );
 }
