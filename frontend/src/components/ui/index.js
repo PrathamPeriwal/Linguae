@@ -15,3 +15,5 @@ export { EmptyState } from "./EmptyState.jsx";
 export { ErrorState } from "./ErrorState.jsx";
 export { Toaster } from "./Toaster.jsx";
 export { ThemeToggle } from "./ThemeToggle.jsx";
+export { Dialog, DialogContent, DialogDescription, DialogClose } from "./Dialog.jsx";
+export { Logo } from "./Logo.jsx";

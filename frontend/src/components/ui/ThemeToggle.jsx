@@ -3,12 +3,13 @@ import { Moon, Sun } from "lucide-react";
 import { useThemeStore } from "../../store/useThemeStore";
 import { IconButton } from "./IconButton";
 
-export function ThemeToggle({ className }) {
+export function ThemeToggle({ className, onClick: onClickProp, ...props }) {
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
   const next = theme === "dark" ? "light" : "dark";
 
   function onClick(event) {
+    onClickProp?.(event);
     const apply = () => setTheme(next);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -47,6 +48,7 @@ export function ThemeToggle({ className }) {
 
   return (
     <IconButton
+      {...props}
       className={className}
       aria-label={next === "light" ? "Switch to light mode" : "Switch to dark mode"}
       onClick={onClick}

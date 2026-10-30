@@ -1,9 +1,10 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router";
-import Layout from "../components/layout/Layout.jsx";
+import { AppShell } from "../components/layout/AppShell.jsx";
 import PageLoader from "../components/layout/PageLoader.jsx";
 
 const HomePage = lazy(() => import("../pages/HomePage.jsx"));
+const ChatsPage = lazy(() => import("../pages/ChatsPage.jsx"));
 const SignUpPage = lazy(() => import("../pages/SignUpPage.jsx"));
 const LoginPage = lazy(() => import("../pages/LoginPage.jsx"));
 const NotificationsPage = lazy(() => import("../pages/NotificationsPage.jsx"));
@@ -29,17 +30,20 @@ export default function AppRoutes({ authUser }) {
         <Route path="/_kit" element={withSuspense(<KitPage />)} />
       ) : null}
       <Route
-        path="/"
         element={
           isAuthenticated && isOnboarded ? (
-            <Layout showSidebar={true}>
-              {withSuspense(<HomePage />)}
-            </Layout>
+            <AppShell />
           ) : (
             <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
           )
         }
-      />
+      >
+        <Route path="/" element={<HomePage />} />
+        <Route path="/chats" element={<ChatsPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/chat/:id" element={<ChatPage />} />
+        <Route path="/call/:id" element={<CallPage />} />
+      </Route>
       <Route
         path="/signup"
         element={
@@ -57,40 +61,6 @@ export default function AppRoutes({ authUser }) {
             withSuspense(<LoginPage />)
           ) : (
             <Navigate to={isOnboarded ? "/" : "/onboarding"} />
-          )
-        }
-      />
-      <Route
-        path="/notifications"
-        element={
-          isAuthenticated && isOnboarded ? (
-            <Layout showSidebar={true}>
-              {withSuspense(<NotificationsPage />)}
-            </Layout>
-          ) : (
-            <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-          )
-        }
-      />
-      <Route
-        path="/call/:id"
-        element={
-          isAuthenticated && isOnboarded ? (
-            withSuspense(<CallPage />)
-          ) : (
-            <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-          )
-        }
-      />
-      <Route
-        path="/chat/:id"
-        element={
-          isAuthenticated && isOnboarded ? (
-            <Layout showSidebar={false}>
-              {withSuspense(<ChatPage />)}
-            </Layout>
-          ) : (
-            <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
           )
         }
       />

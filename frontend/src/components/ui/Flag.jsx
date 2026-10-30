@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LANGUAGE_TO_FLAG } from "../../constants";
+import { LANGUAGE_TO_FLAG } from "../../lib/languages";
 import { cn } from "../../lib/cn";
 
 export function Flag({ language, className }) {

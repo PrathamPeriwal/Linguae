@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { LANGUAGES } from "../../constants";
+import { LANGUAGES } from "../../lib/languages";
 import { cn } from "../../lib/cn";
 import { languageLabel } from "../../lib/languageLabel";
 import { controlClass } from "./Field";

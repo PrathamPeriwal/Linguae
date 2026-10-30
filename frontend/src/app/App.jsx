@@ -53,9 +53,13 @@ const App = () => {
   }
 
   const isAuthenticated = Boolean(authUser);
+  const lockViewport = Boolean(authUser?.isOnboarded) && !isKit;
 
   return (
-    <div className={isKit ? "min-h-screen" : "h-screen"} data-theme={theme}>
+    <div
+      className={isKit ? "min-h-screen" : lockViewport ? "h-dvh overflow-hidden" : "min-h-screen"}
+      data-theme={theme}
+    >
       <RouteErrorBoundary>
         {isAuthenticated ? (
           <Suspense fallback={<PageLoader />}>
