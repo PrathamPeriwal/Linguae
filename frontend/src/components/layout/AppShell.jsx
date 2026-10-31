@@ -26,7 +26,7 @@ export function AppShell() {
   const { pathname } = useLocation();
   const mode = getShellMode(pathname);
   const segment = shellSegment(pathname);
-  const chat = segment === "chat";
+  const fill = segment === "chat" || segment === "call";
   const reduce = useReducedMotion();
 
   return (
@@ -48,13 +48,13 @@ export function AppShell() {
             tabIndex={-1}
             className={cn(
               "min-h-0 flex-1",
-              chat ? "flex flex-col overflow-hidden" : "overflow-y-auto",
+              fill ? "flex flex-col overflow-hidden" : "overflow-y-auto",
               !mode.tabBar && "pb-[env(safe-area-inset-bottom)]",
             )}
           >
             <MotionFade
               key={segment}
-              className={chat ? "flex min-h-0 flex-1 flex-col" : "min-h-full"}
+              className={fill ? "flex min-h-0 flex-1 flex-col" : "min-h-full"}
               initial={reduce ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{
