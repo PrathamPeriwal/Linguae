@@ -9,28 +9,12 @@ export function RevealBar({ children, className }) {
   return (
     <button
       type="button"
-      className={cn("reveal-bar group", className)}
+      className={cn("reveal-bar group", reduce && "is-reduce", className)}
       aria-pressed={open}
       onClick={() => setOpen((value) => (reduce ? !value : true))}
     >
-      <span className="relative inline-block overflow-hidden align-baseline">
-        <span>{children}</span>
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute inset-0 bg-spark",
-            reduce
-              ? open
-                ? "hidden"
-                : "group-hover:hidden group-focus-visible:hidden"
-              : cn(
-                  "transition-transform duration-slow ease-exit motion-reduce:transition-none",
-                  "group-hover:-translate-x-[110%] group-focus-visible:-translate-x-[110%]",
-                  open && "-translate-x-[110%]",
-                ),
-          )}
-        />
-      </span>
+      {children}
+      <span aria-hidden="true" className={cn("reveal-bar__mask", open && "is-open")} />
     </button>
   );
 }

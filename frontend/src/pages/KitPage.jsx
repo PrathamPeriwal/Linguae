@@ -138,11 +138,10 @@ function ThemeColumn({ theme }) {
       </Section>
 
       <Section title="Hero">
-        <div className="relative overflow-visible py-16">
-          <div className="relative inline-block max-w-full overflow-visible">
+        <div className="relative w-full overflow-visible py-16">
+          <GreetingMorph>
             <Bloom />
-            <GreetingMorph />
-          </div>
+          </GreetingMorph>
         </div>
       </Section>
 

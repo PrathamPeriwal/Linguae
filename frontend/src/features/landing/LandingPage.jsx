@@ -3,30 +3,25 @@ import { Link } from "react-router";
 import { Bloom } from "../../components/ui/Bloom.jsx";
 import { Button } from "../../components/ui/Button.jsx";
 import { GreetingMorph } from "../../components/ui/GreetingMorph.jsx";
-import { LanguageChip } from "../../components/ui/LanguageChip.jsx";
 import { Logo } from "../../components/ui/Logo.jsx";
 import { RevealBar } from "../../components/ui/RevealBar.jsx";
 import { ThemeToggle } from "../../components/ui/ThemeToggle.jsx";
-import { LANGUAGES } from "../../lib/languages.js";
+import { ClosingCta } from "./components/ClosingCta.jsx";
+import { FeatureBento } from "./components/FeatureBento.jsx";
+import { GreetingsStrip } from "./components/GreetingsStrip.jsx";
+import { HeroConversation } from "./components/HeroConversation.jsx";
+import { HowItWorks } from "./components/HowItWorks.jsx";
+import { LandingFooter } from "./components/LandingFooter.jsx";
+import { LandingSection } from "./components/LandingSection.jsx";
+import { LanguageGrid } from "./components/LanguageGrid.jsx";
+import { TryAHello } from "./components/TryAHello.jsx";
 
 const TITLE = "Linguae — Practise a language with someone who speaks it.";
 const DESCRIPTION =
   "Find a partner who speaks the language you are learning, chat one to one, and start a video call.";
 
-const FEATURES = [
-  {
-    title: "Find a partner",
-    body: "Filter people by the language they speak.",
-  },
-  {
-    title: "Chat",
-    body: "One-to-one messages in real time.",
-  },
-  {
-    title: "Video call",
-    body: "One-to-one video calls.",
-  },
-];
+const quietLink =
+  "inline-flex min-h-11 items-center text-body text-fg-muted underline-offset-4 hover:text-fg hover:underline";
 
 export default function LandingPage() {
   useEffect(() => {
@@ -43,84 +38,77 @@ export default function LandingPage() {
 
   return (
     <div className="landing min-h-screen text-fg">
-      <header className="landing-rise mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <Logo />
-        <div className="flex max-w-full flex-wrap items-center gap-2">
-          <ThemeToggle />
-          <Button variant="ghost" to="/login">
-            Sign in
-          </Button>
-          <Button to="/signup">Join</Button>
+      <header className="sticky top-0 z-30 border-b border-line bg-bg/80 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Logo />
+          <nav className="flex flex-wrap items-center gap-2" aria-label="Account">
+            <ThemeToggle />
+            <Button variant="ghost" to="/login">
+              Sign in
+            </Button>
+            <Button to="/signup">Join</Button>
+          </nav>
         </div>
       </header>
 
-      <main id="main" className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6">
-        <section className="landing-rise overflow-visible pt-8 sm:pt-16" style={{ animationDelay: "70ms" }}>
-          <div className="relative z-0 inline-block max-w-full overflow-visible">
-            <Bloom />
-            <GreetingMorph />
-          </div>
-          <h1 className="relative z-[1] mt-6 max-w-[65ch] text-balance text-h1 text-fg">
-            Practise a language with someone who speaks it.
-          </h1>
-          <p className="relative z-[1] mt-4 max-w-[65ch] text-body text-fg">
-            Every conversation starts with a <RevealBar>hello</RevealBar>.
-          </p>
-          <div className="relative z-[1] mt-8 flex flex-wrap items-center gap-4">
-            <Button size="lg" to="/signup">
-              Start talking
-            </Button>
-            <Link
-              to="/login"
-              className="inline-flex min-h-11 items-center text-body text-fg-muted hover:text-fg"
-            >
-              I already have an account
-            </Link>
-          </div>
-        </section>
-
-        <section
-          className="landing-rise mt-16 grid gap-8 md:grid-cols-3"
-          style={{ animationDelay: "180ms" }}
-        >
-          {FEATURES.map((feature) => (
-            <article key={feature.title} className="max-w-[65ch]">
-              <h2 className="text-h2 text-fg">{feature.title}</h2>
-              <p className="mt-2 text-body text-fg-muted">{feature.body}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="landing-rise mt-16" style={{ animationDelay: "260ms" }}>
-          <h2 className="text-h2 text-fg">{LANGUAGES.length} languages</h2>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {LANGUAGES.map((language) => (
-              <li key={language}>
-                <LanguageChip language={language} />
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="landing-rise mt-16" style={{ animationDelay: "340ms" }}>
-          <div className="panel-glow flex w-full max-w-md flex-col gap-3 rounded-panel p-4 sm:p-6">
-            <div className="max-w-[85%] rounded-card bg-raised px-3 py-2">
-              <p className="text-body text-fg">Hola. Want to practise English?</p>
+      <div className="overflow-x-clip">
+        <main id="main" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+          <LandingSection className="overflow-visible pb-16 pt-10 lg:pt-16">
+            <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-12">
+              <div className="min-w-0">
+                <GreetingMorph>
+                  <Bloom />
+                </GreetingMorph>
+                <h1 className="relative z-[1] mt-6 max-w-[65ch] text-balance text-h1 text-fg">
+                  Practise a language with someone who speaks it.
+                </h1>
+                <p className="relative z-[1] mt-4 max-w-[65ch] text-body text-fg">
+                  Every conversation starts with a <RevealBar>hello</RevealBar>.
+                </p>
+                <div className="relative z-[1] mt-8 flex flex-wrap items-center gap-4">
+                  <Button size="lg" to="/signup">
+                    Start talking
+                  </Button>
+                  <Link to="/login" className={quietLink}>
+                    I already have an account
+                  </Link>
+                </div>
+              </div>
+              <HeroConversation />
             </div>
-            <div className="max-w-[85%] self-end rounded-card bg-accent px-3 py-2">
-              <p className="text-body text-on-accent">Yes. Hello.</p>
-            </div>
-          </div>
-        </section>
-      </main>
+          </LandingSection>
 
-      <footer
-        className="landing-rise mx-auto flex w-full max-w-5xl items-baseline justify-between gap-4 px-4 py-8 sm:px-6"
-        style={{ animationDelay: "420ms" }}
-      >
-        <p className="font-display text-h3 font-bold lowercase text-fg">linguae</p>
-        <p className="text-small text-fg-muted">{new Date().getFullYear()}</p>
-      </footer>
+          <LandingSection className="py-16">
+            <GreetingsStrip />
+          </LandingSection>
+
+          <LandingSection className="py-16">
+            <TryAHello />
+          </LandingSection>
+
+          <LandingSection className="py-16">
+            <HowItWorks />
+          </LandingSection>
+
+          <LandingSection className="py-16">
+            <FeatureBento />
+          </LandingSection>
+
+          <LandingSection className="py-16">
+            <LanguageGrid />
+          </LandingSection>
+
+          <LandingSection className="overflow-visible py-16">
+            <ClosingCta />
+          </LandingSection>
+        </main>
+
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+          <LandingSection as="footer">
+            <LandingFooter />
+          </LandingSection>
+        </div>
+      </div>
     </div>
   );
 }
