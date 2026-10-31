@@ -66,10 +66,13 @@ export function RequestRowSkeleton() {
   );
 }
 
-export function ChatSkeleton() {
+export function ChatSkeleton({ className }) {
   return (
-    <div className="flex h-[32rem] flex-col rounded-card border border-line" aria-busy="true">
-      <LoadingLabel />
+    <div
+      className={cn("flex h-full min-h-[24rem] w-full min-w-0 flex-col", className)}
+      aria-busy="true"
+      aria-label="Loading chat"
+    >
       <div className="flex items-center gap-3 border-b border-line p-4">
         <Skeleton className="size-10 shrink-0 rounded-full" />
         <div className="grid gap-2">

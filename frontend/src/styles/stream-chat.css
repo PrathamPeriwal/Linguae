@@ -1,0 +1,347 @@
+/*
+  stream-chat-react 13.13.1 (dist/css/v2/index.css).
+  Theme values live on .str-chat and .str-chat__theme-dark. Component colours
+  point at those variables, so this block maps them onto our tokens.
+  Own bubbles are set directly: the stylesheet points them at primary-surface,
+  which is a tint, not the accent fill.
+*/
+
+.str-chat.str-chat__channel {
+  --str-chat__font-family: var(--font-sans);
+  --str-chat__primary-color: rgb(var(--accent));
+  --str-chat__active-primary-color: rgb(var(--accent-hover));
+  --str-chat__primary-color-low-emphasis: rgb(var(--accent) / 0.16);
+  --str-chat__on-primary-color: rgb(var(--on-accent));
+  --str-chat__background-color: rgb(var(--bg));
+  --str-chat__secondary-background-color: rgb(var(--panel));
+  --str-chat__primary-surface-color: rgb(var(--accent) / 0.16);
+  --str-chat__primary-surface-color-low-emphasis: rgb(var(--accent) / 0.16);
+  --str-chat__surface-color: rgb(var(--raised));
+  --str-chat__secondary-surface-color: rgb(var(--raised));
+  --str-chat__tertiary-surface-color: rgb(var(--panel));
+  --str-chat__text-color: rgb(var(--fg));
+  --str-chat__text-low-emphasis-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__disabled-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__on-disabled-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__danger-color: rgb(var(--danger));
+  --str-chat__info-color: rgb(var(--success));
+  --str-chat__overlay-color: rgb(var(--bg) / 0.86);
+  --str-chat__secondary-overlay-color: rgb(var(--bg) / 0.72);
+  --str-chat__secondary-overlay-text-color: rgb(var(--fg));
+  --str-chat__opaque-surface-background-color: rgb(var(--panel));
+  --str-chat__opaque-surface-text-color: rgb(var(--fg));
+  --str-chat__box-shadow-color: rgb(var(--fg) / 0.12);
+  --str-chat__message-highlight-color: rgb(var(--accent) / 0.16);
+  --str-chat__own-message-bubble-background-color: rgb(var(--accent));
+  --str-chat__own-message-bubble-color: rgb(var(--on-accent));
+  --str-chat__message-bubble-background-color: rgb(var(--raised));
+  --str-chat__message-bubble-color: rgb(var(--fg));
+  --str-chat__message-link-color: rgb(var(--accent));
+  --str-chat__message-secondary-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__message-status-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__date-separator-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__date-separator-line-color: rgb(var(--line) / var(--line-strength));
+  --str-chat__message-list-background-color: rgb(var(--bg));
+  --str-chat__channel-background-color: rgb(var(--bg));
+  --str-chat__message-input-background-color: rgb(var(--panel));
+  --str-chat__message-input-color: rgb(var(--fg));
+  --str-chat__message-textarea-color: rgb(var(--fg));
+  --str-chat__message-textarea-background-color: rgb(var(--panel));
+  --str-chat__message-send-color: rgb(var(--accent));
+  --str-chat__message-send-disabled-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__message-send-disabled-background-color: transparent;
+  --str-chat__typing-indicator-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__typing-indicator-dot-background-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__tooltip-background-color: rgb(var(--raised));
+  --str-chat__tooltip-color: rgb(var(--fg));
+  --str-chat__modal-background-color: rgb(var(--panel));
+  --str-chat__modal-color: rgb(var(--fg));
+  --str-chat__modal-close-icon-color: rgb(var(--fg));
+  --str-chat__thread-background-color: rgb(var(--panel));
+  --str-chat__thread-color: rgb(var(--fg));
+  --str-chat__thread-header-background-color: rgb(var(--panel));
+  --str-chat__thread-header-color: rgb(var(--fg));
+  --str-chat__thread-header-info-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__quoted-message-bubble-background-color: rgb(var(--bg));
+  --str-chat__message-reaction-background-color: rgb(var(--raised));
+  --str-chat__message-reaction-color: rgb(var(--fg));
+  --str-chat__own-message-reaction-background-color: rgb(var(--raised));
+  --str-chat__own-message-reaction-color: rgb(var(--fg));
+  --str-chat__message-reactions-background-color: rgb(var(--panel));
+  --str-chat__message-reactions-color: rgb(var(--fg));
+  --str-chat__message-reactions-options-background-color: rgb(var(--panel));
+  --str-chat__message-reactions-options-color: rgb(var(--fg));
+  --str-chat__message-reactions-option-color: rgb(var(--fg));
+  --str-chat__message-reactions-option-hover-background-color: rgb(var(--raised-hover));
+  --str-chat__message-reactions-option-selected-background-color: rgb(var(--accent) / 0.16);
+  --str-chat__dialog-menu-background-color: rgb(var(--panel));
+  --str-chat__dialog-menu-color: rgb(var(--fg));
+  --str-chat__dialog-menu-button-color: rgb(var(--fg));
+  --str-chat__dialog-menu-button-hover-background-color: rgb(var(--raised));
+  --str-chat__file-attachment-background-color: rgb(var(--panel));
+  --str-chat__file-attachment-color: rgb(var(--fg));
+  --str-chat__file-attachment-secondary-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__card-attachment-background-color: rgb(var(--panel));
+  --str-chat__card-attachment-color: rgb(var(--fg));
+  --str-chat__card-attachment-link-color: rgb(var(--accent));
+  --str-chat__system-message-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__notification-color: rgb(var(--fg));
+  --str-chat__message-input-tools-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  --str-chat__cta-button-background-color: rgb(var(--accent));
+  --str-chat__cta-button-color: rgb(var(--on-accent));
+  --str-chat__cta-button-pressed-background-color: rgb(var(--accent-hover));
+  --str-chat__cta-button-disabled-background-color: rgb(var(--panel));
+  --str-chat__cta-button-disabled-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  height: 100%;
+  min-height: 0;
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+}
+
+.chat-stream > .str-chat {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+}
+
+.str-chat__container,
+.str-chat__main-panel,
+.str-chat__thread-container {
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.str-chat__main-panel {
+  min-width: 0;
+}
+
+.str-chat__main-panel > .chat-stream-list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.str-chat__list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+  background: rgb(var(--bg));
+}
+
+.str-chat__message-list-scroll {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.str-chat__list .str-chat__message-list-scroll .str-chat__ul {
+  margin-top: auto;
+}
+
+.str-chat__empty-channel {
+  flex: 1 1 auto;
+}
+
+.str-chat__message-text,
+.str-chat__message-text-inner {
+  overflow-wrap: anywhere;
+}
+
+.str-chat__message a,
+.str-chat__message a:visited {
+  color: rgb(var(--accent));
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.str-chat__message--me a,
+.str-chat__message--me a:visited {
+  color: rgb(var(--on-accent));
+}
+
+.str-chat__message .chat-call-card a,
+.str-chat__message .chat-call-card a:visited {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-control);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.str-chat__message--me .chat-call-card a,
+.str-chat__message--me .chat-call-card a:visited {
+  color: rgb(var(--on-accent));
+}
+
+.str-chat__message--other .chat-call-card a,
+.str-chat__message--other .chat-call-card a:visited {
+  color: rgb(var(--accent));
+}
+
+.str-chat__message-input {
+  flex: 0 0 auto;
+  background: rgb(var(--panel));
+  border-top: 1px solid rgb(var(--line) / var(--line-strength));
+}
+
+.str-chat__message-textarea-container {
+  border: 1px solid rgb(var(--line) / var(--line-strength));
+  border-radius: var(--radius-control);
+  background: rgb(var(--panel));
+}
+
+.str-chat__message-textarea-container:focus-within {
+  box-shadow: 0 0 0 4px rgb(var(--accent) / 0.22);
+}
+
+.str-chat__message-textarea:focus-visible {
+  box-shadow: none;
+}
+
+.str-chat button:focus-visible,
+.str-chat a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgb(var(--accent) / 0.22);
+}
+
+.str-chat__date-separator {
+  color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  font-size: var(--text-caption);
+}
+
+.str-chat__send-button.is-sent {
+  animation: chat-send-pop 160ms linear;
+}
+
+@keyframes chat-send-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.str-chat__typing-indicator .str-chat__typing-indicator__dots .str-chat__typing-indicator__dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  background-color: rgb(var(--fg-muted) / var(--fg-muted-strength));
+  animation: chat-typing-dot 1.2s ease-in-out infinite;
+}
+
+.str-chat__typing-indicator .str-chat__typing-indicator__dots .str-chat__typing-indicator__dot:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.str-chat__typing-indicator .str-chat__typing-indicator__dots .str-chat__typing-indicator__dot:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+@keyframes chat-typing-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+.chat-hello {
+  margin: 0;
+  max-width: 100%;
+  color: rgb(var(--fg));
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 10vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  white-space: nowrap;
+}
+
+.str-chat .image-gallery-icon {
+  color: rgb(var(--fg));
+}
+
+.str-chat .image-gallery-icon:hover,
+.str-chat .image-gallery-icon:focus {
+  color: rgb(var(--accent));
+  outline: 2px solid rgb(var(--accent));
+}
+
+.str-chat .image-gallery.fullscreen-modal,
+.str-chat .image-gallery-content.fullscreen {
+  background: rgb(var(--bg));
+}
+
+.str-chat .image-gallery-index {
+  background: rgb(var(--panel));
+  color: rgb(var(--fg));
+}
+
+.str-chat__wave-progress-bar__progress-indicator {
+  background-color: rgb(var(--on-accent));
+}
+
+.str-chat .emoji-mart,
+.str-chat .emoji-mart-dark,
+.str-chat em-emoji-picker {
+  --rgb-background: var(--panel);
+  --rgb-color: var(--fg);
+  --rgb-accent: var(--accent);
+  --rgb-input: var(--bg);
+  border-color: rgb(var(--line) / var(--line-strength));
+  background: rgb(var(--panel));
+  color: rgb(var(--fg));
+}
+
+.str-chat .emoji-mart-search input,
+.str-chat .emoji-mart-dark .emoji-mart-search input,
+.str-chat .emoji-mart-category-label span,
+.str-chat .emoji-mart-dark .emoji-mart-category-label span,
+.str-chat .emoji-mart-bar,
+.str-chat .emoji-mart-anchor {
+  border-color: rgb(var(--line) / var(--line-strength));
+  background: rgb(var(--panel));
+  color: rgb(var(--fg));
+}
+
+@media (max-width: 1023px) {
+  .str-chat__send-button,
+  .str-chat__attachment-selector__menu-button,
+  .str-chat__message-actions-box-button,
+  .str-chat__message-reply-in-thread-button,
+  .str-chat__message-reactions-button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__send-button.is-sent,
+  .str-chat__typing-indicator .str-chat__typing-indicator__dot {
+    animation: none;
+  }
+
+  .str-chat__typing-indicator .str-chat__typing-indicator__dot {
+    opacity: 0.7;
+  }
+}

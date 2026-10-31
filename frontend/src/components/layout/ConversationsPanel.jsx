@@ -4,6 +4,7 @@ import { Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { listQueryOptions } from "../../app/queryClient";
 import useAuthUser from "../../features/auth/hooks/useAuthUser";
+import { chatUserIdFromRoute } from "../../features/chat/channelId";
 import { useStreamChat } from "../../features/chat/streamChatContext";
 import { getUserFriends } from "../../features/friends/api";
 import { cn } from "../../lib/cn";
@@ -36,6 +37,17 @@ function timeStamp(value) {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return undefined;
   return date.toISOString();
+}
+
+function openedFriendId(pathname, myId) {
+  if (!pathname.startsWith("/chat/")) return "";
+  const raw = pathname.slice("/chat/".length).split("/")[0];
+  if (!raw) return "";
+  try {
+    return chatUserIdFromRoute(decodeURIComponent(raw), myId);
+  } catch {
+    return chatUserIdFromRoute(raw, myId);
+  }
 }
 
 function ConversationRow({ friend, active, unread, preview }) {
@@ -96,6 +108,7 @@ export function ConversationsPanel({ variant = "sidebar", className }) {
 
   const showSkeleton = useDelayedPending(isLoading);
   const friends = Array.isArray(data) ? data : [];
+  const openedId = openedFriendId(pathname, authUser?._id);
   const needle = query.trim().toLowerCase();
   const visible = needle
     ? friends.filter((friend) => (friend.fullName || "").toLowerCase().includes(needle))
@@ -143,7 +156,7 @@ export function ConversationsPanel({ variant = "sidebar", className }) {
       <ConversationRow
         key={friend._id}
         friend={friend}
-        active={pathname === `/chat/${friend._id}`}
+        active={Boolean(openedId) && openedId === String(friend._id)}
         unread={unreadCounts?.[friend._id] || 0}
         preview={previewFor(channels, authUser?._id, friend._id)}
       />

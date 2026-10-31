@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { StreamChat } from "stream-chat";
 import useAuthUser from "../auth/hooks/useAuthUser";
@@ -59,22 +59,57 @@ function unreadFromChannels(channels, userId) {
   return counts;
 }
 
+function zeroReadChannel(client, event, userId) {
+  if (!event?.cid || !client.activeChannels?.[event.cid]?.state) return;
+  const ownRead =
+    (event.type === "message.read" && event.user?.id === userId) ||
+    event.type === "notification.mark_read";
+  if (!ownRead) return;
+  client.activeChannels[event.cid].state.unreadCount = event.unread_messages ?? 0;
+}
+
 export default function StreamChatProvider({ children }) {
   const { authUser } = useAuthUser();
   const [client, setClient] = useState(null);
   const [channels, setChannels] = useState([]);
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [connection, setConnection] = useState("connecting");
+  const [attempt, setAttempt] = useState(0);
 
-  const { data: tokenData } = useQuery({
+  const {
+    data: tokenData,
+    isLoading: tokenLoading,
+    isFetching: tokenFetching,
+    isError: tokenError,
+    refetch: refetchToken,
+  } = useQuery({
     queryKey: queryKeys.streamToken(),
     queryFn: getStreamToken,
     enabled: !!authUser,
   });
 
+  const retryConnect = useCallback(() => {
+    setConnection("connecting");
+    setClient(null);
+    setAttempt((current) => current + 1);
+    refetchToken();
+  }, [refetchToken]);
+
   useEffect(() => {
-    if (!authUser?._id || !tokenData?.token) return;
+    if (!authUser?._id) return undefined;
+    if (!tokenData?.token) {
+      if (tokenLoading || tokenFetching) {
+        setConnection((current) => (current === "ready" ? current : "connecting"));
+        return undefined;
+      }
+      setClient(null);
+      setConnection("error");
+      return undefined;
+    }
+
     let cancelled = false;
     const userId = authUser._id;
+    setConnection((current) => (current === "ready" ? current : "connecting"));
 
     const connect = async () => {
       try {
@@ -86,7 +121,12 @@ export default function StreamChatProvider({ children }) {
           },
           tokenData.token
         );
-        if (cancelled || !chatClient) return;
+        if (cancelled) return;
+        if (!chatClient) {
+          setClient(null);
+          setConnection("error");
+          return;
+        }
         setClient(chatClient);
 
         const nextChannels = await chatClient.queryChannels(
@@ -97,8 +137,13 @@ export default function StreamChatProvider({ children }) {
         if (cancelled) return;
         setChannels(nextChannels);
         setUnreadCounts(unreadFromChannels(nextChannels, userId));
+        setConnection("ready");
       } catch (error) {
         console.error("Error initializing Stream Chat:", error);
+        if (!cancelled) {
+          setClient(null);
+          setConnection("error");
+        }
       }
     };
 
@@ -107,13 +152,29 @@ export default function StreamChatProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [authUser?._id, authUser?.fullName, authUser?.profilePic, tokenData?.token]);
+  }, [
+    attempt,
+    authUser?._id,
+    authUser?.fullName,
+    authUser?.profilePic,
+    tokenData?.token,
+    tokenError,
+    tokenFetching,
+    tokenLoading,
+  ]);
+
+  const syncUnread = useCallback(() => {
+    if (!client || !authUser?._id) return;
+    const active = Object.values(client.activeChannels || {});
+    setUnreadCounts(unreadFromChannels(active, authUser._id));
+  }, [client, authUser?._id]);
 
   useEffect(() => {
-    if (!client || !authUser?._id) return;
+    if (!client || !authUser?._id) return undefined;
     const userId = authUser._id;
 
-    const refresh = () => {
+    const refresh = (event) => {
+      zeroReadChannel(client, event, userId);
       const active = Object.values(client.activeChannels || {});
       setChannels(active);
       setUnreadCounts(unreadFromChannels(active, userId));
@@ -131,8 +192,8 @@ export default function StreamChatProvider({ children }) {
   }, [client, authUser?._id]);
 
   const value = useMemo(
-    () => ({ client, channels, unreadCounts }),
-    [client, channels, unreadCounts]
+    () => ({ client, channels, unreadCounts, connection, retryConnect, syncUnread }),
+    [client, channels, unreadCounts, connection, retryConnect, syncUnread]
   );
 
   return (

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bell, Compass, MessageCircle, UserRound } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import useAuthUser from "../../features/auth/hooks/useAuthUser";
+import { useStreamChat } from "../../features/chat/streamChatContext";
 import { cn } from "../../lib/cn";
 import { Button } from "../ui/Button";
 import { Dialog, DialogContent } from "../ui/Dialog";
@@ -9,13 +10,13 @@ import { ThemeToggle } from "../ui/ThemeToggle";
 import { LogoutConfirm } from "./LogoutConfirm";
 import { useIncomingCount } from "./useIncomingCount";
 
-function TabLink({ to, label, icon, active, count = 0 }) {
+function TabLink({ to, label, icon, active, count = 0, countWord = "incoming" }) {
   const Icon = icon;
   return (
     <Link
       to={to}
       aria-current={active ? "page" : undefined}
-      aria-label={count > 0 ? `${label}, ${count} incoming` : undefined}
+      aria-label={count > 0 ? `${label}, ${count} ${countWord}` : undefined}
       className={cn(
         "flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 text-caption",
         active ? "text-accent" : "text-fg-muted",
@@ -41,6 +42,8 @@ export function TabBar() {
   const { pathname } = useLocation();
   const { authUser } = useAuthUser();
   const incoming = useIncomingCount();
+  const { unreadCounts } = useStreamChat();
+  const chatUnread = Object.values(unreadCounts || {}).reduce((sum, count) => sum + count, 0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const name = authUser?.fullName || "Account";
@@ -52,7 +55,14 @@ export function TabBar() {
         className="flex border-t border-line bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
         <TabLink to="/" label="Discover" icon={Compass} active={pathname === "/"} />
-        <TabLink to="/chats" label="Chats" icon={MessageCircle} active={pathname === "/chats"} />
+        <TabLink
+          to="/chats"
+          label="Chats"
+          icon={MessageCircle}
+          active={pathname === "/chats"}
+          count={chatUnread}
+          countWord="unread"
+        />
         <TabLink
           to="/notifications"
           label="Requests"
