@@ -9,7 +9,7 @@ export function RevealBar({ children, className }) {
   return (
     <button
       type="button"
-      className={cn("reveal-bar group", reduce && "is-reduce", className)}
+      className={cn("reveal-bar group cursor-pointer", reduce && "is-reduce", className)}
       aria-pressed={open}
       onClick={() => setOpen((value) => (reduce ? !value : true))}
     >

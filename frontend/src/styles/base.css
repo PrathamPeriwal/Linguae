@@ -110,6 +110,11 @@ html[data-theme="light"] [data-theme="dark"]::after {
     0 8px 32px rgb(var(--accent) / 0.25);
 }
 
+.avatar-fallback {
+  background-color: var(--avatar-fallback-bg);
+  color: var(--avatar-fallback-fg);
+}
+
 .panel-glow {
   border: 1px solid rgb(var(--spark) / 0.4);
   box-shadow: 0 0 32px rgb(var(--spark) / 0.18);

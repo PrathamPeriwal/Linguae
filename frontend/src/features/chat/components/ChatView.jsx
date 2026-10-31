@@ -2,6 +2,7 @@ import "stream-chat-react/dist/css/v2/index.css";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import useAuthUser from "../../auth/hooks/useAuthUser";
+import { chatChannelId, chatUserIdFromRoute } from "../channelId";
 import { useStreamChat } from "../streamChatContext";
 
 import {
@@ -19,22 +20,23 @@ import ChatLoader from "./ChatLoader";
 import CallButton from "./CallButton";
 
 const ChatView = () => {
-  const { id: targetUserId } = useParams();
+  const { id: routeId } = useParams();
 
   const [channel, setChannel] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { authUser } = useAuthUser();
   const { client } = useStreamChat();
+  const targetUserId = chatUserIdFromRoute(routeId, authUser?._id);
 
   useEffect(() => {
     const initChat = async () => {
-      if (!client || !authUser) return;
+      if (!client || !authUser || !targetUserId) return;
 
       try {
         console.log("Initializing stream chat client...");
 
-        const channelId = [authUser._id, targetUserId].sort().join("-");
+        const channelId = chatChannelId(authUser._id, targetUserId);
 
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],

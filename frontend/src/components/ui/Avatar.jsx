@@ -22,7 +22,7 @@ export function Avatar({ src, name = "", size = 40, className, alt }) {
       <span
         style={box}
         className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-full bg-[rgb(58_15_52)] text-small font-semibold text-[rgb(221_227_232)]",
+          "avatar-fallback inline-flex shrink-0 items-center justify-center rounded-full text-small font-semibold",
           className,
         )}
         role="img"

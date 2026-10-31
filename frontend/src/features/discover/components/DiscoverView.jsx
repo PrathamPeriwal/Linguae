@@ -237,9 +237,14 @@ const DiscoverView = () => {
         </div>
       </header>
 
-      <p className="min-h-5 text-small text-fg-muted" aria-live="polite" aria-atomic="true">
-        {listReady ? learnerCount(filtered.length) : ""}
-      </p>
+      <div>
+        <p className="min-h-5 text-small text-fg-muted" aria-live="polite" aria-atomic="true">
+          {listReady ? learnerCount(filtered.length) : ""}
+        </p>
+        <p className="mt-1 text-small text-fg-muted">
+          Hover or tap a coral bar to see what the greeting means.
+        </p>
+      </div>
 
       {body}
     </div>

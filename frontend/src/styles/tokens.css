@@ -51,6 +51,8 @@
   --success: 95 211 165; /* #5FD3A5 */
   --danger: 255 75 75; /* #FF4B4B */
   --on-danger: 42 11 37; /* #2A0B25 */
+  --avatar-fallback-bg: rgb(var(--accent) / 0.16);
+  --avatar-fallback-fg: rgb(var(--accent));
 }
 
 [data-theme="light"] {
@@ -72,6 +74,8 @@
   --success: 31 143 106; /* #1F8F6A */
   --danger: 196 40 74; /* #C4284A */
   --on-danger: 255 255 255;
+  --avatar-fallback-bg: rgb(58 15 52); /* #3A0F34 */
+  --avatar-fallback-fg: rgb(221 227 232); /* #DDE3E8 */
 }
 
 /*
