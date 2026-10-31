@@ -55,7 +55,7 @@ export const LANGUAGE_PHRASES = {
   French: phraseSet("French", [
     ["Bonjour", "Hello"],
     ["Comment ça va ?", "How are you?"],
-    ["Enchanté.", "Nice to meet you."],
+    ["Enchanté(e).", "Nice to meet you."],
   ]),
   German: phraseSet("German", [
     ["Hallo", "Hello"],
@@ -64,7 +64,7 @@ export const LANGUAGE_PHRASES = {
   ]),
   Mandarin: phraseSet("Mandarin", [
     ["你好", "Hello"],
-    ["你好吗？", "How are you?"],
+    ["你最近怎么样？", "How are you?"],
     ["很高兴认识你。", "Nice to meet you."],
   ]),
   Japanese: phraseSet("Japanese", [
@@ -89,7 +89,7 @@ export const LANGUAGE_PHRASES = {
   ]),
   Portuguese: phraseSet("Portuguese", [
     ["Olá", "Hello"],
-    ["Como está?", "How are you?"],
+    ["Tudo bem?", "How are you?"],
     ["Muito prazer.", "Nice to meet you."],
   ]),
   Arabic: phraseSet("Arabic", [
