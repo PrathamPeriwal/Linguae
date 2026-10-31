@@ -275,6 +275,14 @@ html[data-theme="light"] [data-theme="dark"]::after {
   box-shadow: 0 0 0 4px rgb(var(--accent) / 0.22);
 }
 
+/* Clip the sliding mask to the word so it does not sit in the card padding. */
+.reveal-bar__clip {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  vertical-align: baseline;
+}
+
 .reveal-bar__mask {
   position: absolute;
   left: 0;
@@ -425,6 +433,15 @@ html[data-theme="light"] [data-theme="dark"]::after {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+.learner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

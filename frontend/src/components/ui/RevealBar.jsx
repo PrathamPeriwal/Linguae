@@ -13,8 +13,10 @@ export function RevealBar({ children, className }) {
       aria-pressed={open}
       onClick={() => setOpen((value) => (reduce ? !value : true))}
     >
-      {children}
-      <span aria-hidden="true" className={cn("reveal-bar__mask", open && "is-open")} />
+      <span className="reveal-bar__clip">
+        {children}
+        <span aria-hidden="true" className={cn("reveal-bar__mask", open && "is-open")} />
+      </span>
     </button>
   );
 }

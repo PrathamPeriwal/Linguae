@@ -1,394 +1,247 @@
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { getRecommendedUsers } from "../api";
-import { getUserFriends } from "../../friends/api";
-import {
-  getOutgoingFriendReqs,
-  sendFriendRequest,
-} from "../../requests/api";
-import { Link } from "react-router";
-import {
-  CheckCircleIcon,
-  MapPinIcon,
-  UserPlusIcon,
-  UsersIcon,
-} from "lucide-react";
-
-import { capitialize } from "../../../lib/utils";
-import { LANGUAGES } from "../../../lib/languages";
-import { queryKeys } from "../../../lib/queryKeys";
+import toast from "react-hot-toast";
+import { Search } from "lucide-react";
 import { listQueryOptions } from "../../../app/queryClient";
-import { useStreamChat } from "../../chat/streamChatContext";
+import { Bloom } from "../../../components/ui/Bloom";
+import { Button } from "../../../components/ui/Button";
+import { EmptyState } from "../../../components/ui/EmptyState";
+import { ErrorState } from "../../../components/ui/ErrorState";
+import { Field, Input } from "../../../components/ui/Field";
+import { LanguageCombobox } from "../../../components/ui/LanguageCombobox";
+import { LearnerCardSkeleton } from "../../../components/ui/Skeleton";
+import { LearnerCard } from "../../friends/components/LearnerCard";
+import { getRecommendedUsers } from "../api";
+import { getOutgoingFriendReqs, sendFriendRequest } from "../../requests/api";
+import { getErrorMessage } from "../../../lib/errors";
+import { queryKeys } from "../../../lib/queryKeys";
+import { useDelayedPending } from "../../../lib/useDelayedPending";
 
-import FriendCard, { getLanguageFlag } from "../../friends/components/FriendCard";
-import NoFriendsFound from "../../friends/components/NoFriendsFound";
+const PAGE_SIZE = 12;
+
+function learnerCount(count) {
+  return count === 1 ? "1 learner" : `${count} learners`;
+}
+
+function languageKey(value) {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+function recipientIds(requests) {
+  const ids = new Set();
+  if (!Array.isArray(requests)) return ids;
+  for (const request of requests) {
+    const id = request?.recipient?._id;
+    if (id) ids.add(id);
+  }
+  return ids;
+}
 
 const DiscoverView = () => {
   const queryClient = useQueryClient();
-  const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
-  const [languageFilter, setLanguageFilter] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const { unreadCounts } = useStreamChat();
+  const inFlight = useRef(false);
+  const intro = useRef(true);
+  const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
+  const [language, setLanguage] = useState("");
+  const filterKey = `${deferredSearch}\0${language}`;
+  const [shown, setShown] = useState(PAGE_SIZE);
+  const [shownFor, setShownFor] = useState(filterKey);
 
-  const { data: friends = [], isLoading: loadingFriends } = useQuery({
-    queryKey: queryKeys.friends(),
-    queryFn: getUserFriends,
-    ...listQueryOptions,
-  });
+  if (shownFor !== filterKey) {
+    setShownFor(filterKey);
+    setShown(PAGE_SIZE);
+  }
 
-  const { data: recommendedUsers = [], isLoading: loadingUsers } = useQuery({
+  useEffect(() => {
+    const previous = document.title;
+    document.title = "Discover · Linguae";
+    return () => {
+      document.title = previous;
+    };
+  }, []);
+
+  const usersQuery = useQuery({
     queryKey: queryKeys.users(),
     queryFn: getRecommendedUsers,
     ...listQueryOptions,
   });
 
-  const { data: outgoingFriendReqs } = useQuery({
+  const outgoingQuery = useQuery({
     queryKey: queryKeys.outgoingFriendReqs(),
     queryFn: getOutgoingFriendReqs,
     ...listQueryOptions,
   });
 
-  const { mutate: sendRequestMutation, isPending } = useMutation({
+  const { mutate, isPending, variables } = useMutation({
     mutationFn: sendFriendRequest,
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.outgoingFriendReqs(),
-      }),
+    onMutate: async (userId) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.outgoingFriendReqs() });
+      const previous = queryClient.getQueryData(queryKeys.outgoingFriendReqs());
+      queryClient.setQueryData(queryKeys.outgoingFriendReqs(), (current) => {
+        const list = Array.isArray(current) ? current : [];
+        if (list.some((request) => request?.recipient?._id === userId)) return list;
+        return [...list, { recipient: { _id: userId } }];
+      });
+      return { previous };
+    },
+    onError: (error, _userId, context) => {
+      queryClient.setQueryData(queryKeys.outgoingFriendReqs(), context?.previous ?? []);
+      toast.error(getErrorMessage(error));
+    },
+    onSettled: () => {
+      inFlight.current = false;
+      queryClient.invalidateQueries({ queryKey: queryKeys.outgoingFriendReqs() });
+    },
   });
+
+  const showSkeleton = useDelayedPending(usersQuery.isLoading);
+  const users = Array.isArray(usersQuery.data) ? usersQuery.data : [];
+  const listReady = !usersQuery.isError && !usersQuery.isLoading && !showSkeleton && Array.isArray(usersQuery.data);
+  const playIntro = listReady && intro.current;
 
   useEffect(() => {
-    const outgoingIds = new Set();
-    if (outgoingFriendReqs?.length) {
-      outgoingFriendReqs.forEach((req) => {
-        if (req.recipient?._id) outgoingIds.add(req.recipient._id);
-      });
-    }
-    setOutgoingRequestsIds(outgoingIds);
-  }, [outgoingFriendReqs]);
+    if (listReady) intro.current = false;
+  }, [listReady]);
 
-  const filteredRecommendedUsers = recommendedUsers.filter((user) => {
-    const term = searchTerm.trim().toLowerCase();
-    const nameMatch = term
-      ? user.fullName?.toLowerCase().includes(term)
-      : false;
-    const langMatch =
-      !languageFilter ||
-      (user.nativeLanguage &&
-        user.nativeLanguage.toLowerCase() === languageFilter);
-    return nameMatch || langMatch;
+  const term = deferredSearch.trim().toLowerCase();
+  const lang = languageKey(language);
+  const filtered = users.filter((user) => {
+    const name = typeof user.fullName === "string" ? user.fullName.toLowerCase() : "";
+    const native = languageKey(user.nativeLanguage);
+    const nameOk = term.length === 0 || name.includes(term);
+    const langOk = lang.length === 0 || native === lang;
+    return nameOk && langOk;
   });
+  const visible = filtered.slice(0, shown);
+  const sentIds = recipientIds(outgoingQuery.data);
 
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto space-y-10">
-        {/* Mobile/tablet: show friends + meet new learners together */}
-        <div className="lg:hidden space-y-10">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Your Friends
-            </h2>
-            <Link to="/notifications" className="btn btn-outline btn-sm">
-              <UsersIcon className="mr-2 size-4" />
-              Friend Requests
-            </Link>
-          </div>
+  function send(userId) {
+    if (!userId || inFlight.current || sentIds.has(userId)) return;
+    inFlight.current = true;
+    mutate(userId);
+  }
 
-          {loadingFriends ? (
-            <div className="flex justify-center py-12">
-              <span className="loading loading-spinner loading-lg" />
-            </div>
-          ) : friends.length === 0 ? (
-            <NoFriendsFound />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {friends.map((friend) => (
-                <FriendCard
-                  key={friend._id}
-                  friend={friend}
-                  unreadCount={unreadCounts[friend._id] || 0}
-                />
-              ))}
-            </div>
-          )}
+  function clearFilters() {
+    setSearch("");
+    setLanguage("");
+  }
 
-          <section id="meet-learners-mobile">
-            <div className="mb-6 sm:mb-8">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6">
-                <div className="space-y-1">
-                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                    Meet New Learners
-                  </h2>
-                  <p className="text-sm text-base-content/70">
-                    Filter by native language or search by name
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                  <label className="input input-bordered flex items-center gap-2 w-full sm:w-64">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-4 h-4 opacity-60"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.64 5.64a7.5 7.5 0 0011.01 11.01z"
-                      />
-                    </svg>
-                    <input
-                      type="text"
-                      className="grow"
-                      placeholder="Search by name"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </label>
-
-                  <select
-                    className="select select-bordered w-full sm:w-56"
-                    value={languageFilter}
-                    onChange={(e) => setLanguageFilter(e.target.value)}
-                  >
-                    <option value="">All native languages</option>
-                    {LANGUAGES.map((lang) => (
-                      <option key={lang} value={lang.toLowerCase()}>
-                        {lang}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {loadingUsers ? (
-              <div className="flex justify-center py-12">
-                <span className="loading loading-spinner loading-lg" />
-              </div>
-            ) : filteredRecommendedUsers.length === 0 ? (
-              <div className="card bg-base-200 p-6 text-center">
-                <h3 className="font-semibold text-lg mb-2">
-                  No learners match your filters
-                </h3>
-                <p className="text-base-content opacity-70">
-                  Try clearing the search or picking another language.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredRecommendedUsers.map((user) => {
-                  const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
-
-                  return (
-                    <div
-                      key={user._id}
-                      className="card bg-base-200 hover:shadow-lg transition-all duration-300"
-                    >
-                      <div className="card-body p-5 space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div className="avatar size-16 rounded-full">
-                            <img src={user.profilePic} alt={user.fullName} />
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {user.fullName}
-                            </h3>
-                            {user.location && (
-                              <div className="flex items-center text-xs opacity-70 mt-1">
-                                <MapPinIcon className="size-3 mr-1" />
-                                {user.location}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Languages with flags */}
-                        <div className="flex flex-wrap gap-1.5">
-                          <span className="badge badge-secondary">
-                            {getLanguageFlag(user.nativeLanguage)}
-                            Native: {capitialize(user.nativeLanguage)}
-                          </span>
-                          <span className="badge badge-outline">
-                            {getLanguageFlag(user.learningLanguage)}
-                            Learning: {capitialize(user.learningLanguage)}
-                          </span>
-                        </div>
-
-                        {user.bio && (
-                          <p className="text-sm opacity-70">{user.bio}</p>
-                        )}
-
-                        {/* Action button */}
-                        <button
-                          className={`btn w-full mt-2 ${
-                            hasRequestBeenSent ? "btn-disabled" : "btn-primary"
-                          } `}
-                          onClick={() => sendRequestMutation(user._id)}
-                          disabled={hasRequestBeenSent || isPending}
-                        >
-                          {hasRequestBeenSent ? (
-                            <>
-                              <CheckCircleIcon className="size-4 mr-2" />
-                              Request Sent
-                            </>
-                          ) : (
-                            <>
-                              <UserPlusIcon className="size-4 mr-2" />
-                              Send Friend Request
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+  let body;
+  if (usersQuery.isError) {
+    body = (
+      <ErrorState title="Couldn't load learners" onRetry={() => usersQuery.refetch()}>
+        {getErrorMessage(usersQuery.error)}
+      </ErrorState>
+    );
+  } else if (usersQuery.isLoading || showSkeleton) {
+    body = showSkeleton ? (
+      <div className="learner-grid" aria-busy="true" aria-label="Loading learners">
+        {Array.from({ length: 6 }, (_, index) => (
+          <LearnerCardSkeleton key={index} />
+        ))}
+      </div>
+    ) : (
+      <div className="min-h-40" aria-busy="true">
+        <span className="sr-only">Loading</span>
+      </div>
+    );
+  } else if (users.length === 0) {
+    body = (
+      <div className="relative flex flex-col items-center">
+        <div className="relative z-0 size-24" aria-hidden="true">
+          <Bloom />
         </div>
-
-        {/* Desktop: keep meet new learners full-width; friends live in global sidebar */}
-        <div className="hidden lg:block space-y-10">
-          <section>
-            <div className="mb-6 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 xl:gap-6">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight mb-1">
-                  Meet New Learners
-                </h2>
-                <p className="text-sm text-base-content/70">
-                  Filter by native language or search by name
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-                <label className="input input-bordered flex items-center gap-2 w-full sm:w-72">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-4 h-4 opacity-60"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.64 5.64a7.5 7.5 0 0011.01 11.01z"
-                    />
-                  </svg>
-                  <input
-                    type="text"
-                    className="grow"
-                    placeholder="Search by name"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </label>
-
-                <select
-                  className="select select-bordered w-full sm:w-56"
-                  value={languageFilter}
-                  onChange={(e) => setLanguageFilter(e.target.value)}
-                >
-                  <option value="">All native languages</option>
-                  {LANGUAGES.map((lang) => (
-                    <option key={lang} value={lang.toLowerCase()}>
-                      {lang}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {loadingUsers ? (
-              <div className="flex justify-center py-12">
-                <span className="loading loading-spinner loading-lg" />
-              </div>
-            ) : filteredRecommendedUsers.length === 0 ? (
-              <div className="card bg-base-200 p-6 text-center">
-                <h3 className="font-semibold text-lg mb-2">
-                  No learners match your filters
-                </h3>
-                <p className="text-base-content opacity-70">
-                  Try clearing the search or picking another language.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredRecommendedUsers.map((user) => {
-                  const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
-
-                  return (
-                    <div
-                      key={user._id}
-                      className="card bg-base-200 hover:shadow-lg transition-all duration-300"
-                    >
-                      <div className="card-body p-5 space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div className="avatar size-16 rounded-full">
-                            <img src={user.profilePic} alt={user.fullName} />
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {user.fullName}
-                            </h3>
-                            {user.location && (
-                              <div className="flex items-center text-xs opacity-70 mt-1">
-                                <MapPinIcon className="size-3 mr-1" />
-                                {user.location}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1.5">
-                          <span className="badge badge-secondary">
-                            {getLanguageFlag(user.nativeLanguage)}
-                            Native: {capitialize(user.nativeLanguage)}
-                          </span>
-                          <span className="badge badge-outline">
-                            {getLanguageFlag(user.learningLanguage)}
-                            Learning: {capitialize(user.learningLanguage)}
-                          </span>
-                        </div>
-
-                        {user.bio && (
-                          <p className="text-sm opacity-70">{user.bio}</p>
-                        )}
-
-                        <button
-                          className={`btn w-full mt-2 ${
-                            hasRequestBeenSent ? "btn-disabled" : "btn-primary"
-                          } `}
-                          onClick={() => sendRequestMutation(user._id)}
-                          disabled={hasRequestBeenSent || isPending}
-                        >
-                          {hasRequestBeenSent ? (
-                            <>
-                              <CheckCircleIcon className="size-4 mr-2" />
-                              Request Sent
-                            </>
-                          ) : (
-                            <>
-                              <UserPlusIcon className="size-4 mr-2" />
-                              Send Friend Request
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+        <div className="relative z-[1]">
+          <EmptyState>You're early. No one else has joined yet.</EmptyState>
         </div>
       </div>
+    );
+  } else if (filtered.length === 0) {
+    body = (
+      <EmptyState
+        icon={Search}
+        action={
+          <Button variant="secondary" onClick={clearFilters}>
+            Clear filters
+          </Button>
+        }
+      >
+        No learners match those filters.
+      </EmptyState>
+    );
+  } else {
+    body = (
+      <>
+        <ul className="learner-grid">
+          {visible.map((user, index) => (
+            <LearnerCard
+              key={user._id}
+              user={user}
+              sent={sentIds.has(user._id)}
+              sending={isPending && variables === user._id}
+              onSend={send}
+              enterIndex={playIntro ? index : null}
+            />
+          ))}
+        </ul>
+        {shown < filtered.length ? (
+          <div className="flex justify-center">
+            <Button variant="secondary" onClick={() => setShown((count) => count + PAGE_SIZE)}>
+              Show more
+            </Button>
+          </div>
+        ) : null}
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+      <header className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
+        <div className="min-w-0 max-w-[65ch]">
+          <h1>Meet new learners</h1>
+          <p className="mt-1 text-small text-fg-muted">Search by name and the language they speak.</p>
+        </div>
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
+          <div className="relative w-full sm:w-64">
+            <label className="sr-only" htmlFor="discover-search">
+              Search by name
+            </label>
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-muted"
+              aria-hidden="true"
+            />
+            <Input
+              id="discover-search"
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by name"
+              autoComplete="off"
+              spellCheck={false}
+              className="pl-9"
+            />
+          </div>
+          <div className="w-full sm:w-56">
+            <Field label="Native language">
+              <LanguageCombobox
+                id="native-language"
+                allLabel="All languages"
+                value={language}
+                placeholder="All languages"
+                onChange={(next) => setLanguage(languageKey(next))}
+              />
+            </Field>
+          </div>
+        </div>
+      </header>
+
+      <p className="min-h-5 text-small text-fg-muted" aria-live="polite" aria-atomic="true">
+        {listReady ? learnerCount(filtered.length) : ""}
+      </p>
+
+      {body}
     </div>
   );
 };

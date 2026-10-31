@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { Link, useLocation } from "react-router";
@@ -7,6 +7,7 @@ import useAuthUser from "../../features/auth/hooks/useAuthUser";
 import { useStreamChat } from "../../features/chat/streamChatContext";
 import { getUserFriends } from "../../features/friends/api";
 import { cn } from "../../lib/cn";
+import { useDelayedPending } from "../../lib/useDelayedPending";
 import { getErrorMessage } from "../../lib/errors";
 import { queryKeys } from "../../lib/queryKeys";
 import { formatShortTime } from "../../lib/time";
@@ -15,18 +16,6 @@ import { EmptyState } from "../ui/EmptyState";
 import { ErrorState } from "../ui/ErrorState";
 import { Input } from "../ui/Field";
 import { ConversationRowSkeleton } from "../ui/Skeleton";
-
-function useDelayedPending(pending) {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const delay = pending ? 150 : 300;
-    const timer = setTimeout(() => setShow(pending), delay);
-    return () => clearTimeout(timer);
-  }, [pending]);
-
-  return show;
-}
 
 function previewFor(channels, myId, friendId) {
   if (!myId || !friendId || !Array.isArray(channels)) return null;

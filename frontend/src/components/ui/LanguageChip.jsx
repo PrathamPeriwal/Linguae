@@ -15,13 +15,14 @@ const chipVariants = cva("inline-flex items-center gap-1.5 rounded-full px-2.5 p
   },
 });
 
-export function LanguageChip({ language, variant = "native", className }) {
+export function LanguageChip({ language, variant = "native", prefix, className }) {
   const label = languageLabel(language);
+  const text = prefix ? `${prefix} ${label}`.trim() : label;
 
   return (
     <span className={cn(chipVariants({ variant }), className)}>
       <Flag language={language} />
-      {label}
+      {text}
     </span>
   );
 }

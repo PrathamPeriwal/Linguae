@@ -23,20 +23,31 @@ export function ConversationRowSkeleton() {
 
 export function LearnerCardSkeleton() {
   return (
-    <div className="grid gap-4 rounded-card border border-line p-6" aria-busy="true">
+    <div
+      className="flex h-full flex-col gap-4 rounded-card border border-line bg-raised p-5"
+      aria-busy="true"
+    >
       <LoadingLabel />
-      <Skeleton className="h-12 w-40" />
-      <Skeleton className="h-5 w-32" />
-      <Skeleton className="h-4 w-24" />
-      <div className="grid gap-2">
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-12 shrink-0 rounded-full" />
+        <div className="grid flex-1 gap-2">
+          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+      <div className="grid gap-1">
+        <Skeleton className="h-10 w-28" />
+        <Skeleton className="h-5 w-24" />
+      </div>
+      <div className="grid min-h-[2.625rem] gap-2">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-4/5" />
       </div>
-      <div className="flex gap-2">
-        <Skeleton className="h-7 w-20 rounded-full" />
-        <Skeleton className="h-7 w-24 rounded-full" />
+      <div className="flex flex-wrap gap-2">
+        <Skeleton className="h-7 w-36 rounded-full" />
+        <Skeleton className="h-7 w-40 rounded-full" />
       </div>
-      <Skeleton className="h-11 w-36" />
+      <Skeleton className="mt-auto h-11 w-full" />
     </div>
   );
 }

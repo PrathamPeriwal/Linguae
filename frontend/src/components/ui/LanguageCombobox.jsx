@@ -15,6 +15,7 @@ export function LanguageCombobox({
   disabled = false,
   container,
   className,
+  allLabel,
   ...props
 }) {
   const [open, setOpen] = useState(false);
@@ -26,8 +27,15 @@ export function LanguageCombobox({
 
   const options = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return LANGUAGES.filter((language) => language.toLowerCase().includes(q));
-  }, [query]);
+    const languages = LANGUAGES.filter((language) => language.toLowerCase().includes(q)).map(
+      (language) => ({ id: language, label: language, value: language }),
+    );
+    if (!allLabel) return languages;
+    if (!q || allLabel.toLowerCase().includes(q)) {
+      return [{ id: "__all__", label: allLabel, value: "" }, ...languages];
+    }
+    return languages;
+  }, [allLabel, query]);
 
   const activeIndex = options.length === 0 ? 0 : Math.min(active, options.length - 1);
 
@@ -43,8 +51,8 @@ export function LanguageCombobox({
     }
   }, [open, activeIndex, options]);
 
-  function commit(language) {
-    onChange?.(language);
+  function commit(option) {
+    onChange?.(option.value);
     setQuery("");
     setOpen(false);
   }
@@ -108,7 +116,7 @@ export function LanguageCombobox({
           spellCheck={false}
           placeholder={placeholder}
           className={cn(controlClass, "h-11 px-3", invalid && "border-danger", className)}
-          value={open ? query : languageLabel(value)}
+          value={open ? query : value ? languageLabel(value) : allLabel || ""}
           onChange={(event) => {
             setQuery(event.target.value);
             setActive(0);
@@ -148,11 +156,13 @@ export function LanguageCombobox({
                 No language has that name. Try a different spelling.
               </li>
             ) : (
-              options.map((language, index) => {
-                const selected = languageLabel(value) === language;
+              options.map((option, index) => {
+                const selected = option.value
+                  ? languageLabel(value) === option.label
+                  : !String(value || "").trim();
                 return (
                   <li
-                    key={language}
+                    key={option.id}
                     id={`${id}-option-${index}`}
                     role="option"
                     aria-selected={selected}
@@ -163,10 +173,14 @@ export function LanguageCombobox({
                     )}
                     onMouseEnter={() => setActive(index)}
                     onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => commit(language)}
+                    onClick={() => commit(option)}
                   >
-                    <Flag language={language} />
-                    {language}
+                    {option.value ? (
+                      <Flag language={option.value} />
+                    ) : (
+                      <span className="inline-block h-[18px] w-6 shrink-0" aria-hidden="true" />
+                    )}
+                    {option.label}
                   </li>
                 );
               })
