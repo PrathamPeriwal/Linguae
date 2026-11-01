@@ -37,8 +37,9 @@ afterAll(async () => {
 });
 
 function usersLeak(body) {
-  if (!Array.isArray(body)) return true;
-  return body.some(
+  const list = body && Array.isArray(body.users) ? body.users : null;
+  if (!list) return true;
+  return list.some(
     (user) =>
       user &&
       typeof user === "object" &&

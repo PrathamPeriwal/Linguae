@@ -39,7 +39,7 @@ function RequestButton({ name, state, onClick }) {
       aria-busy={state === "sending" || undefined}
       onClick={onClick}
       className={cn(
-        "mt-auto w-full min-w-[11.5rem]",
+        "w-full min-w-[11.5rem]",
         state === "sending" && "border-solid border-transparent bg-accent text-on-accent",
       )}
     >
@@ -72,7 +72,16 @@ function RequestButton({ name, state, onClick }) {
   );
 }
 
-export function LearnerCard({ user, sent, sending, onSend, enterIndex = null }) {
+export function LearnerCard({
+  user,
+  sent,
+  sending,
+  onSend,
+  onUndo,
+  undoing = false,
+  requestId,
+  enterIndex = null,
+}) {
   const stagger = useRef(enterIndex);
   const enter = stagger.current;
   const name = user.fullName || "Learner";
@@ -127,7 +136,22 @@ export function LearnerCard({ user, sent, sending, onSend, enterIndex = null }) 
         <LanguageChip language={user.learningLanguage} variant="learning" prefix="Learning" />
       </div>
 
-      <RequestButton name={name} state={state} onClick={() => onSend(user._id)} />
+      <div className="mt-auto flex w-full flex-col gap-2">
+        <RequestButton name={name} state={state} onClick={() => onSend(user._id)} />
+        {state === "sent" && onUndo ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="min-h-11 w-full sm:min-h-9"
+            aria-label={`Cancel request to ${name}`}
+            loading={undoing}
+            disabled={undoing || !requestId}
+            onClick={() => onUndo(user._id)}
+          >
+            Undo
+          </Button>
+        ) : null}
+      </div>
     </MotionItem>
   );
 }

@@ -74,6 +74,9 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+userSchema.index({ isOnboarded: 1, _id: -1 });
+userSchema.index({ nativeLanguage: 1, _id: -1 });
+
 userSchema.methods.matchPassword = async function (enteredPassword) {
   const isPasswordCorrect = await bcrypt.compare(
     enteredPassword,

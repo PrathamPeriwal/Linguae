@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 import { env } from "../config/env.js";
+import FriendRequest from "../models/FriendRequest.js";
+import User from "../models/User.js";
+
+const indexedModels = [User, FriendRequest];
 
 let logsEnabled = false;
 let hooksBound = false;
@@ -33,6 +37,28 @@ export function getDbState() {
   return mongoose.connection.readyState;
 }
 
+function logIndexFailure(model, error) {
+  console.error(
+    "Index build failed:",
+    model.modelName,
+    error?.name || "Error",
+    sanitiseDbMessage(error?.message)
+  );
+}
+
+export async function ensureIndexes() {
+  for (const model of indexedModels) {
+    if (model.listenerCount("error") === 0) {
+      model.on("error", (error) => logIndexFailure(model, error));
+    }
+    try {
+      await model.init();
+    } catch (error) {
+      logIndexFailure(model, error);
+    }
+  }
+}
+
 export async function connectDB() {
   bindConnectionLogs();
   try {
@@ -44,6 +70,7 @@ export async function connectDB() {
     const host = mongoose.connection.host;
     const name = mongoose.connection.name;
     console.log(`MongoDB connected (host: ${host}, database: ${name})`);
+    await ensureIndexes();
   } catch (error) {
     console.error(
       "MongoDB connection failed:",
