@@ -2,9 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Linguae</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Find a partner who speaks the language you are learning, chat one to one, and start a video call."
+    />
+    <meta name="theme-color" content="#190718" />
+    <title>Linguae — Practise a language with someone who speaks it.</title>
+    <script>
+      try {
+        var stored = localStorage.getItem("linguae-theme");
+        var theme = stored === "light" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", theme === "light" ? "#DDE3E8" : "#190718");
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,128 +1,85 @@
 # Linguae
 
-> Learn languages through real conversations.
+A language exchange app. You sign up, say which language you speak and which you are learning, find someone, send a friend request, chat one to one, and start a one-to-one video call.
 
-A modern, full-featured language exchange platform enabling users to connect with native speakers globally for real-time language learning through messaging, video calls, and live interaction.
+## What it does
 
----
+- Sign up and log in with email, password, and full name. The session is a JWT in an httpOnly cookie named `jwt`.
+- Onboarding: name, bio, location, avatar, native language, and the language you are learning.
+- Discover onboarded people. Search by name and filter by native language. Both have to match.
+- Send and accept friend requests.
+- One-to-one chat (Stream Chat).
+- One-to-one video call from a chat (Stream Video). The call link is a message in that chat.
+- Dark and light themes, saved in the browser.
 
-## 🌟 Overview
+It does not match people by complementary languages, show live presence, host group calls, record calls, or keep message notifications. Recommendations are other onboarded users who are not already your friends.
 
-Linguae is a production-ready language exchange application that bridges learners and native speakers in a seamless, real-time environment. Built with a modern tech stack and designed for scalability, Linguae combines intuitive UI/UX with powerful real-time capabilities to create an engaging platform for language learners worldwide.
+## Tech
 
-**Key Value Proposition:**
-- Connect with real language partners matched by learning goals
-- Learn naturally through authentic conversations
-- Flexible communication modes (chat, voice, video)
-- Curated language exchange experience with community safety
+- Frontend: React 19, Vite 6, React Router 7, TanStack Query, Tailwind CSS, Zustand (theme only), Motion, Radix primitives, Stream Chat and Stream Video.
+- Backend: Node.js, Express 4, Mongoose, MongoDB, JWT, Stream Chat (server SDK, used to upsert users and mint tokens).
 
----
+## Layout
 
-## ✨ Key Features
-
-### Real-Time Communication
-- 🌐 **Live Messaging** - Type indicators, read receipts, and instant message delivery
-- 💬 **Message Reactions** - Emoji reactions for engaging conversations
-- 🖼️ **Media Sharing** - Upload and share images in conversations
-
-### Video & Voice
-- 📹 **One-on-One Video Calls** - Crystal-clear peer-to-peer communication
-- 👥 **Group Video Calls** - Connect with multiple learners simultaneously
-- 🎬 **Screen Sharing** - Share your screen for collaborative learning
-- 🎥 **Call Recording** - Record sessions for future reference
-
-### Community & Discovery
-- 👤 **User Profiles** - Showcase native language, learning goals, and bio
-- 🔍 **Smart Matching** - Find language partners based on language preferences
-- 🌐 **Online Status** - See who's available in real-time
-- 🤝 **Friend Requests & Notifications** - Build your learning network
-
-### Personalization
-- 🎨 **32 Unique UI Themes** - Customize your experience with diverse visual themes
-- 💾 **Persistent Theme Preference** - Your theme choice is saved locally
-
-### Security & Reliability
-- 🔐 **JWT Authentication** - Secure token-based authentication
-- 🛡️ **Protected Routes** - Role-based access control
-- 🚨 **Comprehensive Error Handling** - Graceful error recovery on both frontend and backend
-- ⚡ **Production-Ready Architecture** - Designed for scale and reliability
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React** - UI framework
-- **Vite** - Lightning-fast build tool
-- **Tailwind CSS** - Utility-first styling
-- **Zustand** - Lightweight global state management
-- **TanStack Query** - Powerful data fetching and caching
-- **Lucide React** - Icon library
-- **Stream Chat** - Real-time messaging SDK
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Stream** - Real-time messaging and video infrastructure
-- **JWT** - Authentication
-- **Mongoose** - MongoDB ODM
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-Ensure you have installed:
-- **Node.js** (v16 or higher)
-- **npm** or **yarn** package manager
-- **MongoDB** (local or Atlas cloud)
-- **Stream account** (https://stream.io)
-
-### Environment Setup
-
-#### Backend Configuration (`/backend`)
-
-Create a `.env` file in the `/backend` directory:
-
-```env
-# Server
-PORT=5001
-NODE_ENV=development
-
-# Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/linguae
-
-# Stream API (Real-time & Video)
-STEAM_API_KEY=your_stream_api_key
-STEAM_API_SECRET=your_stream_api_secret
-
-# Authentication
-JWT_SECRET_KEY=your_secure_jwt_secret_key_here
+```
+linguae/
+├── backend/src/
+│   ├── server.js
+│   ├── controllers/     auth, users, chat token
+│   ├── models/          User, FriendRequest
+│   ├── routes/
+│   ├── middleware/      protectRoute
+│   └── lib/             db, stream
+└── frontend/src/
+    ├── app/             shell, routes, query client
+    ├── components/ui/   buttons, fields, toast, and the rest of the kit
+    ├── components/layout/
+    ├── features/        auth, onboarding, landing, discover, friends, requests, chat, call
+    ├── lib/
+    ├── pages/           thin route components
+    ├── store/           theme
+    └── styles/
 ```
 
-#### Frontend Configuration (`/frontend`)
+## Environment
 
-Create a `.env` file in the `/frontend` directory:
+There is no `.env.example`. Names below are the ones the code reads today.
 
-```env
-# Stream API
-VITE_STREAM_API_KEY=your_stream_api_key
-```
+### Backend (`backend/.env`)
 
-### Installation & Running
+| Name | Read in |
+|---|---|
+| `PORT` | `server.js` (fallback `5001`) |
+| `NODE_ENV` | CORS, the cookie `secure` flag, and static file serving |
+| `MONGO_URI` | `lib/db.js` |
+| `JWT_SECRET_KEY` | auth controller and `protectRoute` |
+| `STEAM_API_KEY` | `lib/stream.js` |
+| `STEAM_API_SECRET` | `lib/stream.js` |
+| `FRONTEND_ORIGINS` | `server.js` (comma-separated). `FRONTEND_ORIGIN` is the fallback. |
 
-#### Backend Setup
+`STEAM_API_KEY` and `STEAM_API_SECRET` are misspelled. The code does not read `STREAM_API_KEY` or `STREAM_API_SECRET`. That spelling is staying until a later backend change. If you "correct" the names, the server will not see a key.
+
+`FRONTEND_ORIGINS` is parsed and then not used. In development the CORS allowlist is hardcoded to `http://localhost:5173`.
+
+### Frontend (`frontend/.env`)
+
+| Name | Read in |
+|---|---|
+| `VITE_STREAM_API_KEY` | chat and call. This one is spelled STREAM. It must be the same Stream app as the backend key. |
+| `VITE_API_BASE_URL_DEV` | `lib/axios.js` when Vite is in development. Fallback `http://localhost:5001/api`. |
+| `VITE_API_BASE_URL` | `lib/axios.js` for any other mode. Fallback `/api`. |
+
+## Run locally
+
+Node 18 or newer. MongoDB has to be reachable. Chat and video need a Stream app.
 
 ```bash
 cd backend
+npm install
 npm run dev
 ```
 
-The backend server will start on `http://localhost:5001`
-
-#### Frontend Setup
+The API listens on `http://localhost:5001`.
 
 ```bash
 cd frontend
@@ -130,110 +87,22 @@ npm install
 npm run dev
 ```
 
-The frontend will be available on `http://localhost:5173` (default Vite port)
+The app is at `http://localhost:5173`.
 
----
+## Deploy
 
-## 📁 Project Structure
+Production is one origin. Express serves `frontend/dist` when `NODE_ENV` is `production`. The process has to be started with its working directory set to `backend/` (`path.resolve()` is used as the base for `../frontend/dist`).
 
-```
-linguae/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/          # Business logic
-│   │   ├── models/               # MongoDB schemas
-│   │   ├── routes/               # API endpoints
-│   │   ├── middleware/           # Custom middleware
-│   │   ├── lib/                  # Utilities & services
-│   │   └── server.js             # Entry point
-│   ├── package.json
-│   └── .env
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/           # Reusable UI components
-│   │   ├── pages/                # Page components
-│   │   ├── hooks/                # Custom React hooks
-│   │   ├── store/                # Zustand state
-│   │   ├── lib/                  # Utilities
-│   │   ├── constants/            # App constants
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── public/
-│   ├── .env
-│   └── configuration files
-│
-├── package.json
-└── README.md
+From the repo root:
+
+```bash
+npm run build
 ```
 
-### Authentication Flow
-1. User signs up with email, full name, native language, and learning language
-2. JWT token generated and stored securely
-3. Protected routes validate token on each request
-4. Automatic logout on token expiration
+That installs both packages and builds the frontend. Then, from `backend/`, with `NODE_ENV=production` and the env vars set:
 
-### Real-Time Messaging
-- **Stream Chat Integration** - Leverages Stream's infrastructure for:
-  - Instant message delivery with typing indicators
-  - Message history and persistence
-  - Unread message tracking
-  - Reaction support
+```bash
+npm start
+```
 
-### Friend Discovery & Matching
-- Users can browse recommended language partners
-- Filter by native language
-- Search by user name
-- Send/accept friend requests
-- View friend request notifications
-
-### Video Call System
-- Peer-to-peer connections via Stream
-- Screen sharing for collaborative sessions
-- Call recording for future learning review
-- Real-time communication with low latency
-
----
-
-## 🎨 UI/UX Highlights
-
-- **Responsive Design** - Optimized for mobile, tablet, and desktop
-- **32 Theme Options** - Complete visual customization with persistent storage
-- **Accessibility** - Semantic HTML and ARIA labels
-- **Loading States** – Skeleton screens and spinners for smooth UX
-- **Error Feedback** - User-friendly error messages and alerts
-- **Mobile Navigation** - Hamburger menu with smooth scrolling
-
----
-
-## 🔐 Security Considerations
-
-- **JWT Tokens** - Secure, stateless authentication
-- **Password Hashing** - Bcrypt for password security (backend)
-- **Protected Endpoints** - Middleware validates authentication
-- **CORS Configuration** - Restricts cross-origin requests
-- **Environment Variables** - Sensitive data never hardcoded
-- **Stream Security** - Tokens validated server-side before use
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-
-This project is open-source and available under the MIT License.
-
----
-
-**Linguae** - Connecting language learners worldwide. 🌍✨
+`npm start` from the repo root runs the backend the same way, but it does not set `NODE_ENV` for you. Without `NODE_ENV=production` the server does not serve the built frontend.

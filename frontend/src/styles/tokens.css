@@ -1,0 +1,79 @@
+:root {
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", "Noto Sans", system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", "Noto Sans", system-ui, sans-serif;
+
+  --text-display-xl: clamp(3.5rem, 11vw, 10rem);
+  --text-display-l: clamp(2.5rem, 6vw, 5rem);
+  --text-h1: 2.25rem;
+  --text-h2: 1.5rem;
+  --text-h3: 1.125rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-caption: 0.75rem;
+
+  --leading-display-xl: 0.9;
+  --leading-display-l: 0.95;
+  --leading-body: 1.55;
+  --tracking-display: -0.04em;
+
+  --radius-control: 10px;
+  --radius-card: 20px;
+  --radius-panel: 32px;
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 360ms;
+  --duration-hero: 700ms;
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Dark is the default. Repeated on [data-theme="dark"] so a nested theme can override light. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: 25 7 24; /* #190718 */
+  --panel: 37 12 39; /* #250C27 */
+  --raised: 58 15 52; /* #3A0F34 */
+  --raised-hover: 75 25 68; /* #4B1944 */
+  --line: 221 227 232;
+  --line-strength: 0.12;
+  --fg: 221 227 232; /* #DDE3E8 */
+  --fg-muted: 221 227 232;
+  --fg-muted-strength: 0.66;
+  --accent: 255 138 148; /* #FF8A94 coral */
+  --accent-hover: 255 163 171; /* #FFA3AB */
+  --on-accent: 42 11 37; /* #2A0B25 */
+  --spark: 255 138 148; /* #FF8A94 */
+  --ember: 255 122 69; /* #FF7A45 */
+  --success: 95 211 165; /* #5FD3A5 */
+  --danger: 255 75 75; /* #FF4B4B */
+  --on-danger: 42 11 37; /* #2A0B25 */
+  --avatar-fallback-bg: rgb(var(--accent) / 0.16);
+  --avatar-fallback-fg: rgb(var(--accent));
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: 221 227 232; /* #DDE3E8 */
+  --panel: 233 237 241; /* #E9EDF1 */
+  --raised: 246 248 250; /* #F6F8FA */
+  --raised-hover: 255 255 255;
+  --line: 58 15 52; /* #3A0F34 */
+  --line-strength: 0.14;
+  --fg: 42 11 37; /* #2A0B25 */
+  --fg-muted: 58 15 52;
+  --fg-muted-strength: 0.68;
+  --accent: 58 15 52; /* #3A0F34 */
+  --accent-hover: 82 21 71; /* #521547 */
+  --on-accent: 221 227 232; /* #DDE3E8 */
+  --spark: 255 138 148; /* #FF8A94 */
+  --ember: 255 122 69; /* #FF7A45 */
+  --success: 31 143 106; /* #1F8F6A */
+  --danger: 196 40 74; /* #C4284A */
+  --on-danger: 255 255 255;
+  --avatar-fallback-bg: rgb(58 15 52); /* #3A0F34 */
+  --avatar-fallback-fg: rgb(221 227 232); /* #DDE3E8 */
+}
