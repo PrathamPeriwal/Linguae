@@ -1,9 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import { Toaster } from "../components/ui/Toaster.jsx";
 import { ErrorState } from "../components/ui/ErrorState.jsx";
+import { Gate } from "../components/ui/Gate.jsx";
+import { Logo } from "../components/ui/Logo.jsx";
+import { Toaster } from "../components/ui/Toaster.jsx";
 import PageLoader from "../components/layout/PageLoader.jsx";
 import useAuthUser from "../features/auth/hooks/useAuthUser.js";
+import { useRouteFocus } from "../lib/useRouteFocus.js";
 import { useThemeStore } from "../store/useThemeStore.js";
 import RouteErrorBoundary from "./RouteErrorBoundary.jsx";
 import AppRoutes from "./router.jsx";
@@ -18,13 +20,11 @@ const WAKING_MESSAGE =
 const App = () => {
   const { isLoading, isFetching, isError, authUser, refetch } = useAuthUser();
   const { theme } = useThemeStore();
-  const location = useLocation();
-  const isKit = import.meta.env.DEV && location.pathname === "/_kit";
   const [slow, setSlow] = useState(false);
+  useRouteFocus();
 
-  const waiting =
-    !authUser && !isKit && (isLoading || (isError && isFetching));
-  const offline = isError && !isFetching && !isKit;
+  const waiting = !authUser && (isLoading || (isError && isFetching));
+  const offline = isError && !isFetching;
 
   useEffect(() => {
     if (!waiting) {
@@ -41,23 +41,25 @@ const App = () => {
 
   if (offline) {
     return (
-      <div
-        className="flex min-h-screen items-center justify-center p-6"
-        data-theme={theme}
-      >
-        <ErrorState title="Can't reach the server" onRetry={() => refetch()}>
+      <Gate theme={theme}>
+        <Logo />
+        <ErrorState
+          className="justify-items-center py-0 text-center"
+          title="Can't reach the server"
+          onRetry={() => refetch()}
+        >
           Check your connection and try again.
         </ErrorState>
-      </div>
+      </Gate>
     );
   }
 
   const isAuthenticated = Boolean(authUser);
-  const lockViewport = Boolean(authUser?.isOnboarded) && !isKit;
+  const lockViewport = Boolean(authUser?.isOnboarded);
 
   return (
     <div
-      className={isKit ? "min-h-screen" : lockViewport ? "h-dvh overflow-hidden" : "min-h-screen"}
+      className={lockViewport ? "h-dvh overflow-hidden" : "min-h-screen"}
       data-theme={theme}
     >
       <RouteErrorBoundary>

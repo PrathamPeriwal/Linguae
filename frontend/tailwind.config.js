@@ -1,5 +1,3 @@
-import daisyui from "daisyui";
-
 const rgb = (name) => `rgb(var(--${name}) / <alpha-value>)`;
 const rgbStrength = (name, strength) =>
   `rgb(var(--${name}) / calc(var(--${strength}) * <alpha-value>))`;
@@ -9,12 +7,6 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      // daisyUI already registers `accent` and `success` utilities (and
-      // primary, secondary, neutral, base-*, info, warning, error).
-      // Our keys win for those two utilities. daisyUI component classes
-      // such as btn-accent still read --a / --su, so they keep working.
-      // No collisions with fontFamily, fontSize, radius, duration, or easing.
-      // daisyUI radii are badge, btn, and box.
       colors: {
         bg: rgb("bg"),
         panel: rgb("panel"),
@@ -68,42 +60,5 @@ export default {
         exit: "var(--ease-exit)",
       },
     },
-  },
-  plugins: [daisyui],
-  daisyui: {
-    themes: [
-      "light",
-      "dark",
-      "cupcake",
-      "bumblebee",
-      "emerald",
-      "corporate",
-      "synthwave",
-      "retro",
-      "cyberpunk",
-      "valentine",
-      "halloween",
-      "garden",
-      "forest",
-      "aqua",
-      "lofi",
-      "pastel",
-      "fantasy",
-      "wireframe",
-      "black",
-      "luxury",
-      "dracula",
-      "cmyk",
-      "autumn",
-      "business",
-      "acid",
-      "lemonade",
-      "night",
-      "coffee",
-      "winter",
-      "dim",
-      "nord",
-      "sunset",
-    ],
   },
 };

@@ -5,7 +5,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* After daisyUI, so our ground wins inside @layer base and utilities still override it. */
+/* Dark shell stays transparent so the page gradient on the body shows through. */
 @layer base {
   [data-theme="dark"] {
     background-color: transparent;

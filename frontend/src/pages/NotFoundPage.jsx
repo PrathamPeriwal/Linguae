@@ -1,15 +1,23 @@
-import { Link } from "react-router";
+import { useEffect } from "react";
+import { Button } from "../components/ui/Button";
+import { Gate } from "../components/ui/Gate";
+import { Logo } from "../components/ui/Logo";
 
 export default function NotFoundPage() {
+  useEffect(() => {
+    const previous = document.title;
+    document.title = "Page not found — Linguae";
+    return () => {
+      document.title = previous;
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold">Page not found</h1>
-        <p className="opacity-70">That page does not exist.</p>
-        <Link to="/" className="btn btn-primary">
-          Go home
-        </Link>
-      </div>
-    </div>
+    <Gate>
+      <Logo />
+      <h1 tabIndex={-1}>Page not found</h1>
+      <p className="text-body text-fg-muted">That page does not exist.</p>
+      <Button to="/">Go home</Button>
+    </Gate>
   );
 }

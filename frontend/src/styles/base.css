@@ -280,6 +280,17 @@ html[data-theme="light"] [data-theme="dark"]::after {
   box-shadow: 0 0 0 4px rgb(var(--accent) / 0.22);
 }
 
+/* Hit area only. The glyphs and the bar stay on the text baseline. */
+.reveal-bar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 2.75rem);
+  height: 2.75rem;
+  transform: translate(-50%, -50%);
+}
+
 /* Clip the sliding mask to the word so it does not sit in the card padding. */
 .reveal-bar__clip {
   display: inline-block;
@@ -447,6 +458,30 @@ html[data-theme="light"] [data-theme="dark"]::after {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.linguae-toaster {
+  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (min-width: 1024px) {
+  .linguae-toaster {
+    bottom: 1rem !important;
+  }
+}
+
+.toast-action {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  border-radius: var(--radius-control);
+  padding: 0 0.75rem;
+  font-weight: 600;
+  color: rgb(var(--accent));
+}
+
+.toast-action:hover {
+  color: rgb(var(--accent-hover));
 }
 
 @media (prefers-reduced-motion: reduce) {

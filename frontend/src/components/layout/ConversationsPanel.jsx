@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Users } from "lucide-react";
+import { Users, Video } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { listQueryOptions } from "../../app/queryClient";
 import useAuthUser from "../../features/auth/hooks/useAuthUser";
+import { callUrlFromText } from "../../features/chat/callLink";
 import { chatUserIdFromRoute } from "../../features/chat/channelId";
 import { useStreamChat } from "../../features/chat/streamChatContext";
 import { getUserFriends } from "../../features/friends/api";
@@ -29,7 +30,7 @@ function previewFor(channels, myId, friendId) {
   const text = typeof last?.text === "string" ? last.text.trim() : "";
   const at = last?.created_at || channel.state?.last_message_at || null;
   if (!text && !at) return null;
-  return { text, at };
+  return { text, at, call: Boolean(callUrlFromText(text)) };
 }
 
 function timeStamp(value) {
@@ -79,7 +80,14 @@ function ConversationRow({ friend, active, unread, preview }) {
           ) : null}
         </span>
         {text ? (
-          <span className="block truncate text-caption text-fg-muted">{text}</span>
+          preview.call ? (
+            <span className="flex min-w-0 items-center gap-1 text-caption text-fg-muted">
+              <Video className="size-3.5 shrink-0" aria-hidden="true" />
+              <span className="truncate">Video call</span>
+            </span>
+          ) : (
+            <span className="block truncate text-caption text-fg-muted">{text}</span>
+          )
         ) : null}
       </span>
       {unread > 0 ? (

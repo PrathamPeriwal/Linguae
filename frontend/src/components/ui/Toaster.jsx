@@ -11,13 +11,18 @@ const toastStyle = {
   maxWidth: "24rem",
 };
 
+const polite = { role: "status", "aria-live": "polite" };
+
 export function Toaster() {
   return (
     <HotToaster
       position="bottom-center"
+      containerClassName="linguae-toaster"
       toastOptions={{
+        ariaProps: polite,
         style: toastStyle,
         success: {
+          ariaProps: polite,
           style: { ...toastStyle, borderColor: "rgb(var(--success))" },
           iconTheme: {
             primary: "rgb(var(--success))",
@@ -25,6 +30,7 @@ export function Toaster() {
           },
         },
         error: {
+          ariaProps: polite,
           style: { ...toastStyle, borderColor: "rgb(var(--danger))" },
           iconTheme: {
             primary: "rgb(var(--danger))",

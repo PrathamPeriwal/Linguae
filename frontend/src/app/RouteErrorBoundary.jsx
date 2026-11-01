@@ -1,5 +1,7 @@
 import { Component } from "react";
 import { ErrorState } from "../components/ui/ErrorState.jsx";
+import { Gate } from "../components/ui/Gate.jsx";
+import { Logo } from "../components/ui/Logo.jsx";
 
 export default class RouteErrorBoundary extends Component {
   constructor(props) {
@@ -18,11 +20,16 @@ export default class RouteErrorBoundary extends Component {
   render() {
     if (this.state.error) {
       return (
-        <div className="flex min-h-screen items-center justify-center p-6">
-          <ErrorState title="Something went wrong" onRetry={this.retry}>
+        <Gate>
+          <Logo />
+          <ErrorState
+            className="justify-items-center py-0 text-center"
+            title="Something went wrong"
+            onRetry={this.retry}
+          >
             This page failed to load. Try again.
           </ErrorState>
-        </div>
+        </Gate>
       );
     }
 

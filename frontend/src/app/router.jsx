@@ -13,9 +13,6 @@ const ChatPage = lazy(() => import("../pages/ChatPage.jsx"));
 const OnboardingPage = lazy(() => import("../pages/OnboardingPage.jsx"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage.jsx"));
 const WelcomePage = lazy(() => import("../pages/WelcomePage.jsx"));
-const KitPage = import.meta.env.DEV
-  ? lazy(() => import("../pages/KitPage.jsx"))
-  : null;
 
 function withSuspense(node) {
   return <Suspense fallback={<PageLoader />}>{node}</Suspense>;
@@ -41,9 +38,6 @@ export default function AppRoutes({ authUser }) {
 
   return (
     <Routes>
-      {import.meta.env.DEV ? (
-        <Route path="/_kit" element={withSuspense(<KitPage />)} />
-      ) : null}
       <Route element={<OnboardedShell authUser={authUser} />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/chats" element={<ChatsPage />} />

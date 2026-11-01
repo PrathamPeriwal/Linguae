@@ -6,6 +6,7 @@ import * as Tooltip from "@radix-ui/react-tooltip";
 import { Outlet, useLocation } from "react-router";
 import { cn } from "../../lib/cn";
 import { Skeleton } from "../ui/Skeleton";
+import { useRequestNotifications } from "../../features/requests/useRequestNotifications";
 import { ConversationsPanel } from "./ConversationsPanel";
 import { getShellMode, shellSegment } from "./getShellMode";
 import { Rail } from "./Rail";
@@ -23,6 +24,7 @@ function MainFallback() {
 }
 
 export function AppShell() {
+  useRequestNotifications();
   const { pathname } = useLocation();
   const mode = getShellMode(pathname);
   const segment = shellSegment(pathname);

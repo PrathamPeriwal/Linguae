@@ -19,6 +19,7 @@ import { formatRelativeTime } from "../../../lib/time";
 import { useDelayedPending } from "../../../lib/useDelayedPending";
 import { cn } from "../../../lib/cn";
 import { acceptFriendRequest, getFriendRequests } from "../api";
+import { noteOwnRequestAction } from "../useRequestNotifications";
 
 const MotionRow = motion.li;
 
@@ -179,6 +180,7 @@ const RequestsView = () => {
   const { mutate } = useMutation({
     mutationFn: acceptFriendRequest,
     onMutate: async (requestId) => {
+      noteOwnRequestAction(requestId);
       await queryClient.cancelQueries({ queryKey: queryKeys.friendRequests() });
       const previous = queryClient.getQueryData(queryKeys.friendRequests());
       const row = Array.isArray(previous?.incomingReqs)
@@ -212,7 +214,7 @@ const RequestsView = () => {
             {path ? (
               <button
                 type="button"
-                className="inline-flex min-h-11 items-center rounded-control px-3 font-semibold text-accent"
+                className="toast-action"
                 aria-label={`Say hello to ${name}`}
                 onClick={() => {
                   toast.dismiss(t.id);
@@ -224,7 +226,7 @@ const RequestsView = () => {
             ) : null}
           </span>
         ),
-        { duration: 8000, className: "mb-16 lg:mb-0" },
+        { duration: 8000 },
       );
     },
     onSettled: (_data, _mutationError, requestId) => {

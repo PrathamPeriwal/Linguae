@@ -31,30 +31,11 @@ import { languageLabel } from "../../../lib/languageLabel";
 import { queryKeys } from "../../../lib/queryKeys";
 import { useDelayedPending } from "../../../lib/useDelayedPending";
 import { useThemeStore } from "../../../store/useThemeStore";
+import { CALL_LINK_PREFIX, callUrlFromText } from "../callLink";
 import { chatChannelId, chatUserIdFromRoute } from "../channelId";
 import { useStreamChat } from "../streamChatContext";
 
-const CALL_LINK_PREFIX = "I've started a video call. Join me here: ";
 const ChatFriendContext = createContext(null);
-
-function callUrlFromText(text) {
-  if (typeof text !== "string") return "";
-  const trimmed = text.trim();
-  const candidate = trimmed.startsWith(CALL_LINK_PREFIX)
-    ? trimmed.slice(CALL_LINK_PREFIX.length).trim()
-    : trimmed;
-  if (!candidate || /\s/.test(candidate)) return "";
-  let url;
-  try {
-    url = new URL(candidate);
-  } catch {
-    return "";
-  }
-  if (url.origin !== window.location.origin) return "";
-  if (!/^\/call\/[^/]+$/.test(url.pathname)) return "";
-  if (url.search || url.hash) return "";
-  return candidate;
-}
 
 function renderChatText(text, mentionedUsers) {
   const url = callUrlFromText(text);
@@ -335,9 +316,14 @@ const ChatView = () => {
 
     return (
       <div className="flex h-full max-h-dvh min-h-0 flex-1 items-center justify-center px-4">
-        <ErrorState title={copy[0]} onRetry={retry}>
-          {copy[1]}
-        </ErrorState>
+        <div>
+          <h1 className="sr-only" tabIndex={-1}>
+            {copy[0]}
+          </h1>
+          <ErrorState title={copy[0]} onRetry={retry}>
+            {copy[1]}
+          </ErrorState>
+        </div>
       </div>
     );
   }
