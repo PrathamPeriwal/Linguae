@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { env } from "../config/env.js";
 import User from "../models/User.js";
 
 export const protectRoute = async (req, res, next) => {
@@ -12,7 +13,7 @@ export const protectRoute = async (req, res, next) => {
         .json({ message: "Unauthorized - No token provided" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY, {
+    const decoded = jwt.verify(token, env.JWT_SECRET_KEY, {
       algorithms: ["HS256"],
     });
 

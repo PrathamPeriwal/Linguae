@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { z } from "zod";
 import { LANGUAGES } from "../constants/languages.js";
+import { env } from "../config/env.js";
 import { jwtCookieOptions } from "../lib/cookies.js";
 import { upsertStreamUser } from "../lib/stream.js";
 import User, { toSafeUser } from "../models/User.js";
@@ -96,7 +97,7 @@ const onboardSchema = z
   });
 
 function signToken(userId) {
-  return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
+  return jwt.sign({ userId }, env.JWT_SECRET_KEY, {
     algorithm: "HS256",
     expiresIn: "7d",
   });
@@ -171,6 +172,13 @@ export async function signup(req, res) {
 
   if (blankText(email) || blankPassword(password) || blankText(fullName)) {
     return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // bcrypt only hashes the first 72 bytes. Same message as the 72-character cap.
+  if (Buffer.byteLength(password) > 72) {
+    return res.status(400).json({
+      message: "Password must be at most 72 characters",
+    });
   }
 
   const parsedPassword = signupPasswordSchema.safeParse(password);

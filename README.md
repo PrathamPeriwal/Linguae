@@ -24,12 +24,14 @@ It does not match people by complementary languages, show live presence, host gr
 ```
 linguae/
 ├── backend/src/
-│   ├── server.js
-│   ├── controllers/     auth, users, chat token
+│   ├── server.js        connect, listen, shutdown
+│   ├── app.js           express app
+│   ├── config/          env, content security policy
+│   ├── controllers/     auth, users, chat token, health
 │   ├── models/          User, FriendRequest
 │   ├── routes/
-│   ├── middleware/      protectRoute
-│   └── lib/             db, stream
+│   ├── middleware/      protectRoute, errors, rate limits
+│   └── lib/             db, stream, cookies
 └── frontend/src/
     ├── app/             shell, routes, query client
     ├── components/ui/   buttons, fields, toast, and the rest of the kit
@@ -43,23 +45,25 @@ linguae/
 
 ## Environment
 
-There is no `.env.example`. Names below are the ones the code reads today.
+Copy `backend/.env.example` to `backend/.env`. Names below are the ones the server reads. A missing or invalid value prints the variable name and exits. Values are not printed.
 
 ### Backend (`backend/.env`)
 
-| Name | Read in |
-|---|---|
-| `PORT` | `server.js` (fallback `5001`) |
-| `NODE_ENV` | CORS, the cookie `secure` flag, and static file serving |
-| `MONGO_URI` | `lib/db.js` |
-| `JWT_SECRET_KEY` | auth controller and `protectRoute` |
-| `STEAM_API_KEY` | `lib/stream.js` |
-| `STEAM_API_SECRET` | `lib/stream.js` |
-| `FRONTEND_ORIGINS` | `server.js` (comma-separated). `FRONTEND_ORIGIN` is the fallback. |
+| Name | Required | What it does |
+|---|---|---|
+| `NODE_ENV` | No | `development` (default), `production`, or `test`. |
+| `PORT` | No | HTTP port. Default `5001`. |
+| `MONGO_URI` | Yes | MongoDB connection string. The log line shows the host and database name only. |
+| `JWT_SECRET_KEY` | Yes | Signs the session cookie. At least 32 characters in production. |
+| `STREAM_API_KEY` | Yes | Stream Chat server key. Same Stream app as `VITE_STREAM_API_KEY`. |
+| `STREAM_API_SECRET` | Yes | Stream Chat server secret. |
+| `FRONTEND_ORIGINS` | No | Comma-separated browser origins allowed to call the API with cookies. |
+| `FRONTEND_ORIGIN` | No | Legacy single origin, used only when `FRONTEND_ORIGINS` is empty. |
+| `CSP_ENFORCE` | No | `true` enforces Content-Security-Policy. Anything else, including empty, is report-only. |
 
-`STEAM_API_KEY` and `STEAM_API_SECRET` are misspelled. The code does not read `STREAM_API_KEY` or `STREAM_API_SECRET`. That spelling is staying until a later backend change. If you "correct" the names, the server will not see a key.
+Set `STREAM_API_KEY` and `STREAM_API_SECRET`. The server does not accept another prefix for those two.
 
-`FRONTEND_ORIGINS` is parsed and then not used. In development the CORS allowlist is hardcoded to `http://localhost:5173`.
+With `FRONTEND_ORIGINS` empty, development allows `http://localhost:5173`. Production allows no other origin. The SPA is served from this process, so a same-origin request is still allowed. A request with no `Origin` header is allowed. Any other origin gets `403` `{ "message": "Origin not allowed" }`.
 
 ### Frontend (`frontend/.env`)
 
@@ -71,12 +75,19 @@ There is no `.env.example`. Names below are the ones the code reads today.
 
 ## Run locally
 
-Node 18 or newer. MongoDB has to be reachable. Chat and video need a Stream app.
+Node 20 or newer. MongoDB has to be reachable. Chat and video need a Stream app. The process checks the environment, connects to MongoDB, then listens. `GET /api/health` needs no cookie and returns `{ "status": "ok", "db": "up", "uptime": <seconds> }` when the database answers a ping, or `503` with `"db": "down"`.
 
 ```bash
 cd backend
 npm install
 npm run dev
+```
+
+Lint and tests (the tests use an in-memory MongoDB and do not call Stream):
+
+```bash
+npm run lint
+npm test
 ```
 
 The API listens on `http://localhost:5001`.
@@ -91,7 +102,9 @@ The app is at `http://localhost:5173`.
 
 ## Deploy
 
-Production is one origin. Express serves `frontend/dist` when `NODE_ENV` is `production`. The process has to be started with its working directory set to `backend/` (`path.resolve()` is used as the base for `../frontend/dist`).
+Production is one origin. Express serves `frontend/dist` when `NODE_ENV` is `production`. The dist path is resolved from the server file, so the working directory does not matter. Hashed files under `/assets/` are cached for a year. `index.html` is `Cache-Control: no-cache`. A missing file that has an extension returns 404. Other GET paths return `index.html`.
+
+`SIGTERM` and `SIGINT` stop new connections, close MongoDB, and exit. If that takes more than 10 seconds the process exits anyway.
 
 From the repo root:
 
@@ -105,4 +118,4 @@ That installs both packages and builds the frontend. Then, from `backend/`, with
 npm start
 ```
 
-`npm start` from the repo root runs the backend the same way, but it does not set `NODE_ENV` for you. Without `NODE_ENV=production` the server does not serve the built frontend.
+`npm start` from the repo root runs the backend the same way, but it does not set `NODE_ENV` for you. Without `NODE_ENV=production` the server does not serve the built frontend. Content-Security-Policy is report-only until `CSP_ENFORCE=true`.

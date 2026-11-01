@@ -1,61 +1,78 @@
-import express from "express";
-import "dotenv/config";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import path from "path";
+import { app } from "./app.js";
+import { env } from "./config/env.js";
+import { closeDb, connectDB } from "./lib/db.js";
 
-import authRoutes from "./routes/auth.route.js";
-import userRoutes from "./routes/user.route.js";
-import chatRoutes from "./routes/chat.route.js";
+let server;
+let shuttingDown = false;
 
-import { connectDB } from "./lib/db.js";
-
-const app = express();
-const PORT = process.env.PORT || 5001;
-const FRONTEND_ORIGINS = (
-  process.env.FRONTEND_ORIGINS ||
-  process.env.FRONTEND_ORIGIN ||
-  "http://localhost:5173"
-)
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
-
-const __dirname = path.resolve();
-
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? true // allow same-origin in production
-        : (origin, callback) => {
-            const allowedOrigins = ["http://localhost:5173"];
-            if (!origin || allowedOrigins.includes(origin)) {
-              callback(null, true);
-            } else {
-              callback(new Error("Not allowed by CORS"));
-            }
-          },
-    credentials: true,
-  })
-);
-
-app.use(express.json());
-app.use(cookieParser());
-
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/chat", chatRoutes);
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
+function logProcessError(label, error) {
+  const err = error instanceof Error ? error : new Error(String(error));
+  if (env.NODE_ENV === "development") {
+    console.error(label, err.name, err.message, err.stack);
+  } else {
+    console.error(label, err.name, err.message);
+  }
 }
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDB();
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`${signal} received, shutting down`);
+  const forced = setTimeout(() => {
+    console.error("Forced exit after 10 seconds");
+    process.exit(1);
+  }, 10_000);
+  forced.unref();
+
+  try {
+    if (server) {
+      await new Promise((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+    }
+    await closeDb();
+    clearTimeout(forced);
+    process.exit(0);
+  } catch (error) {
+    logProcessError("shutdown", error);
+    process.exit(1);
+  }
+}
+
+process.on("SIGTERM", () => {
+  shutdown("SIGTERM");
+});
+
+process.on("SIGINT", () => {
+  shutdown("SIGINT");
+});
+
+process.on("unhandledRejection", (reason) => {
+  logProcessError("unhandledRejection", reason);
+  process.exit(1);
+});
+
+process.on("uncaughtException", (error) => {
+  logProcessError("uncaughtException", error);
+  const finish = () => process.exit(1);
+  const timer = setTimeout(finish, 1000);
+  timer.unref();
+  if (!server) {
+    finish();
+    return;
+  }
+  server.close(() => {
+    closeDb().finally(finish);
+  });
+});
+
+await connectDB();
+
+server = app.listen(env.PORT, () => {
+  console.log(`Server is running on port ${env.PORT}`);
+});
+
+server.on("error", (error) => {
+  logProcessError("listen", error);
+  process.exit(1);
 });
