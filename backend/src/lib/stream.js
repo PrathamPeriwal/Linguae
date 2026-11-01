@@ -11,3 +11,16 @@ export async function upsertStreamUser(userData) {
 export function generateStreamToken(userId) {
   return streamClient.createToken(userId.toString());
 }
+
+function notifyError(error) {
+  const name = error instanceof Error ? error.name : "Error";
+  const message = error instanceof Error ? error.message : "";
+  console.error(name, message);
+}
+
+// Resolves after the send finishes or fails. Never rejects. Callers must not await it on a request path.
+export function notifyUser(userId, event) {
+  return Promise.resolve()
+    .then(() => streamClient.sendUserCustomEvent(String(userId), event))
+    .catch(notifyError);
+}

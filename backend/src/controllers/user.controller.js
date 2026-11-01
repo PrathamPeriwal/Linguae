@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { LANGUAGES } from "../constants/languages.js";
+import { notifyUser } from "../lib/stream.js";
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
 
@@ -60,6 +61,25 @@ function pageLimit(raw) {
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function logNotify(error) {
+  const name = error instanceof Error ? error.name : "Error";
+  const message = error instanceof Error ? error.message : "";
+  console.error(name, message);
+}
+
+function publish(userId, type, requestId, fromUserId) {
+  try {
+    const pending = notifyUser(String(userId), {
+      type,
+      requestId: String(requestId),
+      fromUserId: String(fromUserId),
+    });
+    Promise.resolve(pending).catch(logNotify);
+  } catch (error) {
+    logNotify(error);
+  }
 }
 
 async function linkFriends(senderId, recipientId) {
@@ -216,6 +236,7 @@ export async function sendFriendRequest(req, res) {
     });
 
     res.status(201).json(friendRequest);
+    publish(recipientId, "friend_request_received", friendRequest._id, myId);
   } catch (error) {
     if (duplicateKey(error)) {
       return res.status(400).json({ message: ALREADY_EXISTS });
@@ -253,13 +274,21 @@ export async function acceptFriendRequest(req, res) {
       }
       if (existing.status === "accepted") {
         await linkFriends(existing.sender, existing.recipient);
-        return res.status(200).json({ message: "Friend request accepted" });
+        res.status(200).json({ message: "Friend request accepted" });
+        publish(
+          existing.sender,
+          "friend_request_accepted",
+          existing._id,
+          existing.recipient
+        );
+        return;
       }
       return res.status(404).json({ message: "Friend request not found" });
     }
 
     await linkFriends(accepted.sender, accepted.recipient);
     res.status(200).json({ message: "Friend request accepted" });
+    publish(accepted.sender, "friend_request_accepted", accepted._id, accepted.recipient);
   } catch (error) {
     console.error("Error in acceptFriendRequest controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -284,7 +313,10 @@ export async function deleteFriendRequest(req, res) {
       return res.status(404).json({ message: "Friend request not found" });
     }
 
+    const actorId = req.user._id;
+    const otherId = sameId(deleted.sender, actorId) ? deleted.recipient : deleted.sender;
     res.status(200).json({ message: "Friend request removed" });
+    publish(otherId, "friend_request_removed", deleted._id, actorId);
   } catch (error) {
     console.error("Error in deleteFriendRequest controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });

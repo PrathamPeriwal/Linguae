@@ -5,11 +5,13 @@ import { useNavigate } from "react-router";
 import { listQueryOptions } from "../../app/queryClient";
 import useAuthUser from "../auth/hooks/useAuthUser";
 import { chatChannelId } from "../chat/channelId";
+import { useStreamChat } from "../chat/streamChatContext";
 import { queryKeys } from "../../lib/queryKeys";
 import { getFriendRequests } from "./api";
 
-// Polling stand-in. This will be replaced by a Stream custom event once the backend phase adds it.
-const POLL_MS = 30_000;
+// Friend-request events refetch these lists while Stream is connected. Polling is the fallback.
+const CONNECTED_POLL_MS = 120_000;
+const FALLBACK_POLL_MS = 30_000;
 const ownRequestIds = new Set();
 
 export function noteOwnRequestAction(id) {
@@ -68,16 +70,18 @@ function actionToast(message, label, onClick) {
 
 export function useRequestNotifications() {
   const { authUser } = useAuthUser();
+  const { connection } = useStreamChat();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const seen = useRef(null);
+  const pollMs = connection === "ready" ? CONNECTED_POLL_MS : FALLBACK_POLL_MS;
 
   const { data, isSuccess } = useQuery({
     queryKey: queryKeys.friendRequests(),
     queryFn: getFriendRequests,
     enabled: Boolean(authUser),
     ...listQueryOptions,
-    refetchInterval: POLL_MS,
+    refetchInterval: pollMs,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: "always",
   });

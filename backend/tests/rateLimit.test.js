@@ -6,6 +6,7 @@ import { signupBody, startMongo, stopMongo } from "./helpers.js";
 vi.mock("../src/lib/stream.js", () => ({
   upsertStreamUser: vi.fn(async (user) => user),
   generateStreamToken: vi.fn((userId) => `test-token-${userId}`),
+  notifyUser: vi.fn(() => Promise.resolve()),
 }));
 
 const TOO_MANY = "Too many requests, please try again later.";

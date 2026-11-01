@@ -20,6 +20,7 @@ import {
 vi.mock("../src/lib/stream.js", () => ({
   upsertStreamUser: vi.fn(async (user) => user),
   generateStreamToken: vi.fn((userId) => `test-token-${userId}`),
+  notifyUser: vi.fn(() => Promise.resolve()),
 }));
 
 let app;

@@ -9,6 +9,7 @@ import { has, looseLimits, profile, signupBody, startMongo, stopMongo, clearMong
 vi.mock("../src/lib/stream.js", () => ({
   upsertStreamUser: vi.fn(async (user) => user),
   generateStreamToken: vi.fn((userId) => `test-token-${userId}`),
+  notifyUser: vi.fn(() => Promise.resolve()),
 }));
 
 const ALREADY_EXISTS = "A friend request already exists between you and this user";

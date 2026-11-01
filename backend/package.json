@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify:security": "node scripts/verify-security.mjs"
+    "verify:security": "node scripts/verify-security.mjs",
+    "verify:realtime": "node scripts/verify-realtime.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { StreamChat } from "stream-chat";
 import useAuthUser from "../auth/hooks/useAuthUser";
 import { queryKeys } from "../../lib/queryKeys";
@@ -59,6 +59,12 @@ function unreadFromChannels(channels, userId) {
   return counts;
 }
 
+const REQUEST_EVENTS = [
+  "friend_request_received",
+  "friend_request_accepted",
+  "friend_request_removed",
+];
+
 function zeroReadChannel(client, event, userId) {
   if (!event?.cid || !client.activeChannels?.[event.cid]?.state) return;
   const ownRead =
@@ -69,6 +75,7 @@ function zeroReadChannel(client, event, userId) {
 }
 
 export default function StreamChatProvider({ children }) {
+  const queryClient = useQueryClient();
   const { authUser } = useAuthUser();
   const [client, setClient] = useState(null);
   const [channels, setChannels] = useState([]);
@@ -172,6 +179,8 @@ export default function StreamChatProvider({ children }) {
   useEffect(() => {
     if (!client || !authUser?._id) return undefined;
     const userId = authUser._id;
+    let cancelled = false;
+    const pendingWatches = new Map();
 
     const refresh = (event) => {
       zeroReadChannel(client, event, userId);
@@ -180,16 +189,59 @@ export default function StreamChatProvider({ children }) {
       setUnreadCounts(unreadFromChannels(active, userId));
     };
 
+    const promote = (event) => {
+      const type = event?.channel_type || event?.channel?.type;
+      const id = event?.channel_id || event?.channel?.id;
+      if (!type || !id) return;
+      const cid = event.cid || `${type}:${id}`;
+      const channel = client.channel(type, id);
+      let pending = channel.initialized ? null : pendingWatches.get(cid);
+      if (!channel.initialized && !pending) {
+        pending = channel.watch();
+        pendingWatches.set(cid, pending);
+      }
+      Promise.resolve(pending)
+        .then(() => {
+          pendingWatches.delete(cid);
+          if (!cancelled) refresh(event);
+        })
+        .catch((error) => {
+          pendingWatches.delete(cid);
+          const name = error instanceof Error ? error.name : "Error";
+          const message = error instanceof Error ? error.message : "";
+          console.error(name, message);
+        });
+    };
+
     client.on("message.new", refresh);
     client.on("message.read", refresh);
     client.on("notification.mark_read", refresh);
+    client.on("notification.message_new", promote);
+    client.on("notification.added_to_channel", promote);
 
     return () => {
+      cancelled = true;
       client.off("message.new", refresh);
       client.off("message.read", refresh);
       client.off("notification.mark_read", refresh);
+      client.off("notification.message_new", promote);
+      client.off("notification.added_to_channel", promote);
     };
   }, [client, authUser?._id]);
+
+  useEffect(() => {
+    if (!client) return undefined;
+    const refreshLists = () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.friendRequests() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.outgoingFriendReqs() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.friends() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users() });
+    };
+    for (const type of REQUEST_EVENTS) client.on(type, refreshLists);
+    return () => {
+      for (const type of REQUEST_EVENTS) client.off(type, refreshLists);
+    };
+  }, [client, queryClient]);
 
   const value = useMemo(
     () => ({ client, channels, unreadCounts, connection, retryConnect, syncUnread }),

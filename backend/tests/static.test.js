@@ -9,6 +9,7 @@ import { asyncHandler } from "../src/utils/asyncHandler.js";
 vi.mock("../src/lib/stream.js", () => ({
   upsertStreamUser: vi.fn(async (user) => user),
   generateStreamToken: vi.fn((userId) => `test-token-${userId}`),
+  notifyUser: vi.fn(() => Promise.resolve()),
 }));
 
 const dist = mkdtempSync(path.join(tmpdir(), "linguae-dist-"));
