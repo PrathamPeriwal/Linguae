@@ -6,6 +6,7 @@ import {
   signup,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import { toSafeUser } from "../models/User.js";
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.post("/onboarding", protectRoute, onboard);
 
 // check if user is logged in
 router.get("/me", protectRoute, (req, res) => {
-  res.status(200).json({ success: true, user: req.user });
+  res.status(200).json({ success: true, user: toSafeUser(req.user) });
 });
 
 export default router;
