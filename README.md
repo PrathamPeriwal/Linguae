@@ -154,3 +154,7 @@ The process also writes one `system_heartbeat` document. It writes at startup on
 Render's free services spin down after 15 minutes without traffic. A free monitor such as UptimeRobot or cron-job.org can call `GET /api/health` every 10 minutes and keep the process awake. Keeping one service awake all month uses about 720 to 744 of the 750 free hours.
 
 Atlas free clusters pause automatically after a period of inactivity. The current docs say 30 days. Any real connection counts, including the health check's ping and the 6-hour heartbeat write.
+
+## End-to-end tests
+
+The Playwright suite lives in `e2e/`. See `e2e/README.md`. It builds the frontend, starts this API in production on port 5099 with Content-Security-Policy enforced, and seeds the development database named by `MONGO_DB_NAME`. That name must end in `-dev`. The suite seeds again when it stops. It does not edit `.env` files.

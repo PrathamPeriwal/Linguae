@@ -16,7 +16,7 @@ function TabLink({ to, label, icon, active, count = 0, countWord = "incoming" })
     <Link
       to={to}
       aria-current={active ? "page" : undefined}
-      aria-label={count > 0 ? `${label}, ${count} ${countWord}` : undefined}
+      aria-label={count > 0 ? `${count} ${label}, ${count} ${countWord}` : undefined}
       className={cn(
         "flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 text-caption",
         active ? "text-accent" : "text-fg-muted",
@@ -29,7 +29,7 @@ function TabLink({ to, label, icon, active, count = 0, countWord = "incoming" })
             aria-hidden="true"
             className="absolute -right-2 -top-1 min-w-4 rounded-full bg-spark px-1 text-center text-caption font-semibold leading-none text-[#2A0B25]"
           >
-            {count}
+            {count}{" "}
           </span>
         ) : null}
       </span>

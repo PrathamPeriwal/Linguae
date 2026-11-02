@@ -8,8 +8,16 @@ function initials(name) {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
+function accessibleName(alt, name) {
+  if (alt === "") return "";
+  const value = (typeof alt === "string" ? alt : name).trim();
+  return value || "Profile";
+}
+
 export function Avatar({ src, name = "", size = 40, className, alt }) {
   const [failed, setFailed] = useState(!src);
+  const label = accessibleName(alt, name);
+  const decorative = label === "";
 
   useEffect(() => {
     setFailed(!src);
@@ -25,8 +33,9 @@ export function Avatar({ src, name = "", size = 40, className, alt }) {
           "avatar-fallback inline-flex shrink-0 items-center justify-center rounded-full text-small font-semibold",
           className,
         )}
-        role="img"
-        aria-label={alt ?? name}
+        role={decorative ? undefined : "img"}
+        aria-hidden={decorative ? true : undefined}
+        aria-label={decorative ? undefined : label}
       >
         {initials(name)}
       </span>
@@ -36,7 +45,7 @@ export function Avatar({ src, name = "", size = 40, className, alt }) {
   return (
     <img
       src={src}
-      alt={alt ?? name}
+      alt={label}
       width={size}
       height={size}
       style={box}

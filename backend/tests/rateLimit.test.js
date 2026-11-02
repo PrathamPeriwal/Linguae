@@ -65,3 +65,23 @@ it("does not count successful logins and blocks the 11th failure", async () => {
   expect(blocked.status).toBe(429);
   expect(blocked.body).toEqual({ message: TOO_MANY });
 });
+
+it("honours RATE_LIMIT_SIGNUP when it is a positive integer", async () => {
+  process.env.RATE_LIMIT_SIGNUP = "2";
+  try {
+    const limited = createApp();
+    for (let index = 0; index < 2; index += 1) {
+      const response = await request(limited)
+        .post("/api/auth/signup")
+        .send(signupBody({ email: `rate-override-${index}@example.com` }));
+      expect(response.status).toBe(201);
+    }
+    const blocked = await request(limited)
+      .post("/api/auth/signup")
+      .send(signupBody({ email: "rate-override-blocked@example.com" }));
+    expect(blocked.status).toBe(429);
+    expect(blocked.body).toEqual({ message: TOO_MANY });
+  } finally {
+    delete process.env.RATE_LIMIT_SIGNUP;
+  }
+});

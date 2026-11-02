@@ -59,9 +59,25 @@ function mountStatic(app, distPath) {
   });
 }
 
+function positiveInt(raw) {
+  if (raw == null || String(raw).trim() === "") return undefined;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) return undefined;
+  return value;
+}
+
+// Unset in production. The e2e server sets these so throwaway signups fit in one run.
+function rateLimits(options) {
+  return {
+    api: options.limits?.api ?? positiveInt(process.env.RATE_LIMIT_API),
+    login: options.limits?.login ?? positiveInt(process.env.RATE_LIMIT_LOGIN),
+    signup: options.limits?.signup ?? positiveInt(process.env.RATE_LIMIT_SIGNUP),
+  };
+}
+
 export function createApp(options = {}) {
   const app = express();
-  const { api, login, signup } = createRateLimiters(options.limits);
+  const { api, login, signup } = createRateLimiters(rateLimits(options));
   const distPath = options.distPath || defaultDistPath;
 
   app.disable("x-powered-by");
