@@ -35,6 +35,7 @@ const schema = z
       z.coerce.number().int().positive().max(65535).default(5001)
     ),
     MONGO_URI: z.string().min(1),
+    MONGO_DB_NAME: z.string().min(1).optional(),
     JWT_SECRET_KEY: z.string().min(1),
     STREAM_API_KEY: z.string().min(1),
     STREAM_API_SECRET: z.string().min(1),
@@ -65,6 +66,7 @@ const raw = {
   NODE_ENV: optionalString(process.env.NODE_ENV),
   PORT: optionalString(process.env.PORT),
   MONGO_URI: optionalString(process.env.MONGO_URI),
+  MONGO_DB_NAME: optionalString(process.env.MONGO_DB_NAME),
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   STREAM_API_KEY: optionalString(process.env.STREAM_API_KEY),
   STREAM_API_SECRET: optionalString(process.env.STREAM_API_SECRET),
@@ -99,6 +101,7 @@ export const env = Object.freeze({
   NODE_ENV: parsed.data.NODE_ENV,
   PORT: parsed.data.PORT,
   MONGO_URI: parsed.data.MONGO_URI,
+  MONGO_DB_NAME: parsed.data.MONGO_DB_NAME,
   JWT_SECRET_KEY: parsed.data.JWT_SECRET_KEY,
   STREAM_API_KEY: parsed.data.STREAM_API_KEY,
   STREAM_API_SECRET: parsed.data.STREAM_API_SECRET,

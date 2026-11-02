@@ -1,6 +1,7 @@
 import { app } from "./app.js";
 import { env } from "./config/env.js";
 import { closeDb, connectDB } from "./lib/db.js";
+import { startHeartbeat, stopHeartbeat } from "./lib/heartbeat.js";
 
 let server;
 let shuttingDown = false;
@@ -17,6 +18,7 @@ function logProcessError(label, error) {
 async function shutdown(signal) {
   if (shuttingDown) return;
   shuttingDown = true;
+  stopHeartbeat();
   console.log(`${signal} received, shutting down`);
   const forced = setTimeout(() => {
     console.error("Forced exit after 10 seconds");
@@ -53,6 +55,7 @@ process.on("unhandledRejection", (reason) => {
 });
 
 process.on("uncaughtException", (error) => {
+  stopHeartbeat();
   logProcessError("uncaughtException", error);
   const finish = () => process.exit(1);
   const timer = setTimeout(finish, 1000);
@@ -67,6 +70,7 @@ process.on("uncaughtException", (error) => {
 });
 
 await connectDB();
+await startHeartbeat();
 
 server = app.listen(env.PORT, () => {
   console.log(`Server is running on port ${env.PORT}`);

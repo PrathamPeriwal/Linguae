@@ -9,7 +9,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "verify:security": "node scripts/verify-security.mjs",
-    "verify:realtime": "node scripts/verify-realtime.mjs"
+    "verify:realtime": "node scripts/verify-realtime.mjs",
+    "seed:demo": "node scripts/seed-demo.js",
+    "verify:demo": "node scripts/verify-demo.mjs"
   },
   "engines": {
     "node": ">=20"

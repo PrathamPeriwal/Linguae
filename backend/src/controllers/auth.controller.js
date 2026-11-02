@@ -62,7 +62,7 @@ function allowedAvatar(value) {
   return url.protocol === "https:" && AVATAR_HOSTS.has(url.hostname);
 }
 
-const onboardSchema = z
+export const onboardSchema = z
   .object({
     fullName: z
       .string("Full name must be text.")

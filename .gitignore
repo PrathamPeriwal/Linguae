@@ -23,6 +23,7 @@ dist-ssr
 
 
 backend/.env
+backend/backups/
 frontend/.env
 
 PROJECT_CONTEXT.md

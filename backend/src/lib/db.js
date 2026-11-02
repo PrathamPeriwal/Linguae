@@ -37,6 +37,29 @@ export function getDbState() {
   return mongoose.connection.readyState;
 }
 
+function databaseNameFromUri(uri) {
+  try {
+    const pathname = new URL(uri).pathname.replace(/^\//, "");
+    if (!pathname) return "test";
+    try {
+      return decodeURIComponent(pathname);
+    } catch {
+      return pathname;
+    }
+  } catch {
+    return "";
+  }
+}
+
+// Connected name wins, so a seed confirm matches the database actually in use.
+export function getDbName() {
+  if (mongoose.connection.readyState === 1 && mongoose.connection.name) {
+    return mongoose.connection.name;
+  }
+  if (env.MONGO_DB_NAME) return env.MONGO_DB_NAME;
+  return databaseNameFromUri(env.MONGO_URI);
+}
+
 function logIndexFailure(model, error) {
   console.error(
     "Index build failed:",
@@ -62,10 +85,12 @@ export async function ensureIndexes() {
 export async function connectDB() {
   bindConnectionLogs();
   try {
-    await mongoose.connect(env.MONGO_URI, {
+    const options = {
       serverSelectionTimeoutMS: 10000,
       maxPoolSize: 10,
-    });
+    };
+    if (env.MONGO_DB_NAME) options.dbName = env.MONGO_DB_NAME;
+    await mongoose.connect(env.MONGO_URI, options);
     logsEnabled = true;
     const host = mongoose.connection.host;
     const name = mongoose.connection.name;
