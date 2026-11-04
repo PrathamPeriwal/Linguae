@@ -18,7 +18,7 @@ import { queryKeys } from "../../../lib/queryKeys";
 import { formatRelativeTime } from "../../../lib/time";
 import { useDelayedPending } from "../../../lib/useDelayedPending";
 import { cn } from "../../../lib/cn";
-import { acceptFriendRequest, getFriendRequests } from "../api";
+import { acceptFriendRequest, getFriendRequests, removeFriendRequest } from "../api";
 import { noteOwnRequestAction } from "../useRequestNotifications";
 
 const MotionRow = motion.li;
@@ -64,7 +64,7 @@ function RequestTime({ value, prefix }) {
   );
 }
 
-function IncomingRow({ request, pending, onAccept }) {
+function IncomingRow({ request, accepting, declining, onAccept, onDecline }) {
   const sender = request.sender;
   const name = personName(sender, "Someone");
   const location = place(sender);
@@ -94,25 +94,37 @@ function IncomingRow({ request, pending, onAccept }) {
           <RequestTime value={request.createdAt} />
         </div>
       </div>
-      <Button
-        className={cn(
-          "min-h-11 w-full shrink-0 sm:w-auto",
-          pending && "border-solid border-transparent bg-accent text-on-accent",
-        )}
-        disabled={pending}
-        aria-busy={pending || undefined}
-        aria-label={pending ? `Sending request from ${name}` : `Accept request from ${name}`}
-        onClick={() => onAccept(request._id)}
-      >
-        {pending ? (
-          <>
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            Sending
-          </>
-        ) : (
-          "Accept"
-        )}
-      </Button>
+      <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+        <Button
+          className={cn(
+            "min-h-11 w-full sm:w-auto",
+            accepting && "border-solid border-transparent bg-accent text-on-accent",
+          )}
+          disabled={accepting || declining}
+          aria-busy={accepting || undefined}
+          aria-label={accepting ? `Sending request from ${name}` : `Accept request from ${name}`}
+          onClick={() => onAccept(request._id)}
+        >
+          {accepting ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              Sending
+            </>
+          ) : (
+            "Accept"
+          )}
+        </Button>
+        <Button
+          variant="secondary"
+          className="min-h-11 w-full sm:w-auto"
+          loading={declining}
+          disabled={accepting || declining}
+          aria-label={`Decline request from ${name}`}
+          onClick={() => onDecline(request._id)}
+        >
+          Decline
+        </Button>
+      </div>
     </div>
   );
 }
@@ -150,8 +162,8 @@ const RequestsView = () => {
   const navigate = useNavigate();
   const { authUser } = useAuthUser();
   const reduce = useReducedMotion() === true;
-  const pendingRef = useRef(new Set());
-  const [pendingIds, setPendingIds] = useState(() => new Set());
+  const pendingRef = useRef(new Map());
+  const [pendingIds, setPendingIds] = useState(() => new Map());
   const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
@@ -168,13 +180,21 @@ const RequestsView = () => {
     ...listQueryOptions,
   });
 
-  function trackPending(id, on) {
-    if (!id || pendingRef.current.has(id) === on) return;
-    const next = new Set(pendingRef.current);
-    if (on) next.add(id);
+  function trackPending(id, action) {
+    if (!id) return;
+    const next = new Map(pendingRef.current);
+    if (action) next.set(id, action);
     else next.delete(id);
     pendingRef.current = next;
     setPendingIds(next);
+  }
+
+  function withoutIncoming(current, requestId) {
+    const list = Array.isArray(current?.incomingReqs) ? current.incomingReqs : [];
+    return {
+      incomingReqs: list.filter((item) => item?._id !== requestId),
+      acceptedReqs: Array.isArray(current?.acceptedReqs) ? current.acceptedReqs : [],
+    };
   }
 
   const { mutate } = useMutation({
@@ -186,13 +206,9 @@ const RequestsView = () => {
       const row = Array.isArray(previous?.incomingReqs)
         ? previous.incomingReqs.find((item) => item?._id === requestId)
         : null;
-      queryClient.setQueryData(queryKeys.friendRequests(), (current) => {
-        const list = Array.isArray(current?.incomingReqs) ? current.incomingReqs : [];
-        return {
-          incomingReqs: list.filter((item) => item?._id !== requestId),
-          acceptedReqs: Array.isArray(current?.acceptedReqs) ? current.acceptedReqs : [],
-        };
-      });
+      queryClient.setQueryData(queryKeys.friendRequests(), (current) =>
+        withoutIncoming(current, requestId),
+      );
       const name = personName(row?.sender, "them");
       return { previous, name, senderId: row?.sender?._id };
     },
@@ -230,7 +246,7 @@ const RequestsView = () => {
       );
     },
     onSettled: (_data, _mutationError, requestId) => {
-      trackPending(requestId, false);
+      trackPending(requestId, null);
       queryClient.invalidateQueries({ queryKey: queryKeys.friendRequests() });
       queryClient.invalidateQueries({ queryKey: queryKeys.friends() });
       queryClient.invalidateQueries({ queryKey: queryKeys.users() });
@@ -238,10 +254,39 @@ const RequestsView = () => {
     },
   });
 
+  const { mutate: decline } = useMutation({
+    mutationFn: removeFriendRequest,
+    onMutate: async (requestId) => {
+      noteOwnRequestAction(requestId);
+      await queryClient.cancelQueries({ queryKey: queryKeys.friendRequests() });
+      const previous = queryClient.getQueryData(queryKeys.friendRequests());
+      queryClient.setQueryData(queryKeys.friendRequests(), (current) =>
+        withoutIncoming(current, requestId),
+      );
+      return { previous };
+    },
+    onError: (mutationError, _requestId, context) => {
+      if (context && Object.prototype.hasOwnProperty.call(context, "previous")) {
+        queryClient.setQueryData(queryKeys.friendRequests(), context.previous);
+      }
+      toast.error(getErrorMessage(mutationError));
+    },
+    onSettled: (_data, _mutationError, requestId) => {
+      trackPending(requestId, null);
+      queryClient.invalidateQueries({ queryKey: queryKeys.friendRequests() });
+    },
+  });
+
   function accept(requestId) {
     if (!requestId || pendingRef.current.has(requestId)) return;
-    trackPending(requestId, true);
+    trackPending(requestId, "accept");
     mutate(requestId);
+  }
+
+  function declineRequest(requestId) {
+    if (!requestId || pendingRef.current.has(requestId)) return;
+    trackPending(requestId, "decline");
+    decline(requestId);
   }
 
   const showSkeleton = useDelayedPending(isLoading);
@@ -306,8 +351,10 @@ const RequestsView = () => {
                 >
                   <IncomingRow
                     request={request}
-                    pending={pendingIds.has(request._id)}
+                    accepting={pendingIds.get(request._id) === "accept"}
+                    declining={pendingIds.get(request._id) === "decline"}
                     onAccept={accept}
+                    onDecline={declineRequest}
                   />
                 </MotionRow>
               ))}

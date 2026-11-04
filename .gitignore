@@ -23,6 +23,7 @@ dist-ssr
 
 
 backend/.env
+backend/backups/
 frontend/.env
 
 PROJECT_CONTEXT.md
@@ -31,3 +32,9 @@ BACKEND_TODO.md
 FRONTEND_TODO.md
 .env
 PHASE_REPORT.md
+RELEASE_CHECKLIST.md
+
+e2e/node_modules
+e2e/test-results
+e2e/playwright-report
+e2e/.runtime

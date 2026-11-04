@@ -1,30 +1,26 @@
 import { StreamChat } from "stream-chat";
-import "dotenv/config";
+import { env } from "../config/env.js";
 
-const apiKey = process.env.STEAM_API_KEY;
-const apiSecret = process.env.STEAM_API_SECRET;
+export const streamClient = StreamChat.getInstance(env.STREAM_API_KEY, env.STREAM_API_SECRET);
 
-if (!apiKey || !apiSecret) {
-  console.error("Stream API key or Secret is missing");
+export async function upsertStreamUser(userData) {
+  await streamClient.upsertUsers([userData]);
+  return userData;
 }
 
-const streamClient = StreamChat.getInstance(apiKey, apiSecret);
+export function generateStreamToken(userId) {
+  return streamClient.createToken(userId.toString());
+}
 
-export const upsertStreamUser = async (userData) => {
-  try {
-    await streamClient.upsertUsers([userData]);
-    return userData;
-  } catch (error) {
-    console.error("Error upserting Stream user:", error);
-  }
-};
+function notifyError(error) {
+  const name = error instanceof Error ? error.name : "Error";
+  const message = error instanceof Error ? error.message : "";
+  console.error(name, message);
+}
 
-export const generateStreamToken = (userId) => {
-  try {
-    // ensure userId is a string
-    const userIdStr = userId.toString();
-    return streamClient.createToken(userIdStr);
-  } catch (error) {
-    console.error("Error generating Stream token:", error);
-  }
-};
+// Resolves after the send finishes or fails. Never rejects. Callers must not await it on a request path.
+export function notifyUser(userId, event) {
+  return Promise.resolve()
+    .then(() => streamClient.sendUserCustomEvent(String(userId), event))
+    .catch(notifyError);
+}
